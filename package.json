@@ -3,7 +3,7 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"dev": "next dev --turbopack",
+		"dev": "next dev",
 		"build": "next build",
 		"start": "next start",
 		"lint": "biome check .",
@@ -24,6 +24,8 @@
 		"@dnd-kit/utilities": "^3.2.2",
 		"@neondatabase/auth": "^0.1.0-beta.21",
 		"@neondatabase/serverless": "^1.0.2",
+		"@rollup/rollup-linux-x64-gnu": "^4.58.0",
+		"@tailwindcss/oxide-linux-x64-gnu": "^4.2.0",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"drizzle-orm": "^0.45.1",

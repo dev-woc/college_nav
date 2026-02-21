@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import type { LinkItem, Profile } from "@/types";
 
@@ -12,6 +13,7 @@ interface UseProfileReturn {
 }
 
 export function useProfile(): UseProfileReturn {
+	const router = useRouter();
 	const [profile, setProfile] = useState<Profile | null>(null);
 	const [links, setLinks] = useState<LinkItem[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
@@ -25,7 +27,7 @@ export function useProfile(): UseProfileReturn {
 			const res = await fetch("/api/profile");
 			if (!res.ok) {
 				if (res.status === 401) {
-					setError("Not authenticated");
+					router.push("/login");
 					return;
 				}
 				throw new Error("Failed to fetch profile");
