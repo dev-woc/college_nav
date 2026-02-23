@@ -20,9 +20,11 @@ On Linux, run: `tree -L 3 -I 'node_modules|__pycache__|.git|dist|build'`
 
 ### 2. Read Core Documentation
 
+- Read the PRD.md or similar spec file
 - Read CLAUDE.md or similar global rules file
 - Read README files at project root and major directories
 - Read any architecture documentation
+- Read the drizzle config so you understand the database schema
 
 ### 3. Identify Key Files
 
