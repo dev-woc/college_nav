@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { GoogleButton } from "@/components/auth/google-button";
 import { SignupForm } from "@/components/auth/signup-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +10,7 @@ export default function SignupPage() {
 		<Card>
 			<CardHeader className="text-center">
 				<CardTitle className="text-2xl">Create your account</CardTitle>
-				<CardDescription>Get your personal link-in-bio page</CardDescription>
+				<CardDescription>Start building your personalized college list</CardDescription>
 			</CardHeader>
 			<CardContent className="space-y-4">
 				<GoogleButton />
@@ -18,7 +19,9 @@ export default function SignupPage() {
 					<span className="text-sm text-muted-foreground">or</span>
 					<Separator className="flex-1" />
 				</div>
-				<SignupForm />
+				<Suspense>
+					<SignupForm />
+				</Suspense>
 				<p className="text-center text-sm text-muted-foreground">
 					Already have an account?{" "}
 					<Link href="/login" className="text-primary underline-offset-4 hover:underline">

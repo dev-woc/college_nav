@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,15 +14,23 @@ interface FormErrors {
 	email?: string;
 	password?: string;
 	slug?: string;
+	schoolName?: string;
 	general?: string;
 }
 
 export function SignupForm() {
 	const router = useRouter();
+	const searchParams = useSearchParams();
+	const roleParam = searchParams.get("role");
+	const isCounselor = roleParam === "counselor";
+
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [slug, setSlug] = useState("");
+	const [schoolName, setSchoolName] = useState("");
+	const [district, setDistrict] = useState("");
+	const [stateCode, setStateCode] = useState("");
 	const [errors, setErrors] = useState<FormErrors>({});
 	const [loading, setLoading] = useState(false);
 
@@ -36,6 +44,10 @@ export function SignupForm() {
 		const slugResult = slugSchema.safeParse(slug);
 		if (!slugResult.success) {
 			newErrors.slug = slugResult.error.issues[0]?.message ?? "Invalid username";
+		}
+
+		if (isCounselor && !schoolName.trim()) {
+			newErrors.schoolName = "School name is required";
 		}
 
 		setErrors(newErrors);
@@ -63,11 +75,20 @@ export function SignupForm() {
 				return;
 			}
 
-			// 2. Create profile with slug
-			const profileRes = await fetch("/api/profile", {
+			// 2. Create user profile with role
+			const profileRes = await fetch("/api/user", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ slug, displayName: name }),
+				body: JSON.stringify({
+					slug,
+					displayName: name,
+					role: isCounselor ? "counselor" : "student",
+					...(isCounselor && {
+						schoolName: schoolName.trim(),
+						district: district.trim(),
+						stateCode: stateCode.trim().toUpperCase(),
+					}),
+				}),
 			});
 
 			if (!profileRes.ok) {
@@ -77,8 +98,8 @@ export function SignupForm() {
 				return;
 			}
 
-			// 3. Redirect to editor
-			router.push("/editor");
+			// 3. Redirect based on role
+			router.push(isCounselor ? "/counselor/dashboard" : "/student/onboarding");
 		} catch {
 			setErrors({ general: "Something went wrong. Please try again." });
 			setLoading(false);
@@ -87,8 +108,15 @@ export function SignupForm() {
 
 	return (
 		<form onSubmit={handleSubmit} className="space-y-4">
+			{isCounselor && (
+				<div className="rounded-lg bg-blue-50 px-4 py-3 text-sm text-blue-800">
+					Creating a <strong>counselor account</strong>. Your students will connect to your caseload
+					using your username.
+				</div>
+			)}
+
 			<div className="space-y-2">
-				<Label htmlFor="name">Name</Label>
+				<Label htmlFor="name">Full Name</Label>
 				<Input
 					id="name"
 					placeholder="Your name"
@@ -127,10 +155,51 @@ export function SignupForm() {
 
 			<SlugInput value={slug} onChange={setSlug} error={errors.slug} />
 
+			{isCounselor && (
+				<>
+					<div className="space-y-2">
+						<Label htmlFor="schoolName">School Name</Label>
+						<Input
+							id="schoolName"
+							placeholder="Lincoln High School"
+							value={schoolName}
+							onChange={(e) => setSchoolName(e.target.value)}
+						/>
+						{errors.schoolName && <p className="text-sm text-destructive">{errors.schoolName}</p>}
+					</div>
+
+					<div className="grid grid-cols-2 gap-3">
+						<div className="space-y-2">
+							<Label htmlFor="district">District (optional)</Label>
+							<Input
+								id="district"
+								placeholder="Unified School District"
+								value={district}
+								onChange={(e) => setDistrict(e.target.value)}
+							/>
+						</div>
+						<div className="space-y-2">
+							<Label htmlFor="stateCode">State</Label>
+							<Input
+								id="stateCode"
+								placeholder="AZ"
+								maxLength={2}
+								value={stateCode}
+								onChange={(e) => setStateCode(e.target.value)}
+							/>
+						</div>
+					</div>
+				</>
+			)}
+
 			{errors.general && <p className="text-sm text-destructive text-center">{errors.general}</p>}
 
 			<Button type="submit" className="w-full" disabled={loading}>
-				{loading ? "Creating Account..." : "Create Account"}
+				{loading
+					? "Creating Account..."
+					: isCounselor
+						? "Create Counselor Account"
+						: "Create Account"}
 			</Button>
 		</form>
 	);

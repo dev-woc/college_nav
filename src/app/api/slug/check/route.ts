@@ -1,7 +1,9 @@
+export const dynamic = "force-dynamic";
+
 import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { profiles } from "@/lib/db/schema";
+import { userProfiles } from "@/lib/db/schema";
 import { slugCheckRateLimiter } from "@/lib/rate-limit";
 import { slugSchema } from "@/lib/validations";
 
@@ -23,8 +25,8 @@ export async function GET(request: NextRequest) {
 		});
 	}
 
-	const existing = await db.query.profiles.findFirst({
-		where: eq(profiles.slug, slug),
+	const existing = await db.query.userProfiles.findFirst({
+		where: eq(userProfiles.slug, slug),
 	});
 
 	return NextResponse.json({ available: !existing });

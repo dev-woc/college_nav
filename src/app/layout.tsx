@@ -15,8 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "Link in Bio Page Builder",
-	description: "Create your personal link-in-bio page",
+	title: "College Navigator",
+	description:
+		"Your personal college counselor — personalized college lists, real net prices, and guidance designed for first-generation students.",
 };
 
 export default function RootLayout({
