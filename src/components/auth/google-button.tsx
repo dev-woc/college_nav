@@ -12,7 +12,7 @@ export function GoogleButton() {
 		try {
 			await authClient.signIn.social({
 				provider: "google",
-				callbackURL: "/editor",
+				callbackURL: "/student/onboarding",
 			});
 		} catch {
 			setLoading(false);
