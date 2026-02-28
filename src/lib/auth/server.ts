@@ -11,8 +11,14 @@ function getServer() {
 	return _server;
 }
 
+// Fixed dev user — used when SKIP_AUTH=true in .env.local
+const DEV_USER = { id: "dev-user-local-001", email: "dev@localhost" } as const;
+
 export const auth = new Proxy({} as ReturnType<typeof createAuthServer>, {
 	get(_, prop: string) {
+		if (process.env.SKIP_AUTH === "true" && prop === "getSession") {
+			return async () => ({ data: { user: DEV_USER }, error: null });
+		}
 		return (getServer() as Record<string, unknown>)[prop];
 	},
 });

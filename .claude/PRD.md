@@ -1,142 +1,192 @@
-# Product Requirements Document: Link-in-Bio Page Builder
+# Product Requirements Document
+## College Navigation Platform — Agentic Lifecycle Guidance
+
+**Version:** 1.0
+**Date:** February 27, 2026
+**Status:** Draft
+
+---
 
 ## 1. Executive Summary
 
-Link-in-Bio Page Builder is a self-hosted, multi-user Linktree alternative that enables users to create a personal landing page with their name, bio, avatar, and a curated list of links. Users select from layout-varying visual themes, receive a shareable public URL based on their chosen slug (e.g., `/cole`), and access a dedicated analytics dashboard tracking clicks per link over time.
+The college navigation market is a $110–125 billion opportunity defined by a single structural failure: no product spans the full student lifecycle. Students use Naviance to explore colleges, Common App to apply, Fastweb to search scholarships, DegreeWorks to track degree progress, and Handshake to find jobs — five disconnected tools that share no data, provide no continuity, and offer no proactive guidance. The result is a system that works for students with college-educated parents who can fill in the gaps and fails the 54% of undergraduates who are first-generation.
 
-The application is built as a full-stack Next.js app deployed on Vercel, backed by Neon serverless Postgres with Neon Auth for authentication. The editor features a live preview with side-by-side layout on desktop and a toggle mode on mobile, with full drag-and-drop link reordering. Public pages are server-rendered for optimal SEO and social sharing.
+This platform is an agentic college navigation system that follows a student from high school sophomore through employed graduate. Unlike existing tools — which are passive information repositories requiring students to know what to search for — this platform proactively identifies what a student needs, when they need it, and takes action on their behalf. It is the difference between a library and a personal counselor.
 
-**MVP Goal:** Deliver a fully functional, production-ready link-in-bio platform across 4 sequential phases — from profile editing through theming, public URLs with SEO, and click analytics — with comprehensive E2E testing validating every user journey.
+The MVP targets high school students and their counselors, with a focused set of agents covering college discovery, financial aid transparency, and application management. Community colleges, four-year institutions, and employer recruiting represent Phase 2 and 3 expansion. The business model is three-sided: free for students (with premium upsell), B2B SaaS for institutions and counselors, and recruiting fees from employers.
+
+**MVP Goal:** Launch a working agentic platform for high school students that replaces the passive college search with proactive, personalized guidance — demonstrably improving FAFSA completion, college match quality, and application outcomes for first-generation students.
 
 ---
 
 ## 2. Mission
 
-**Mission Statement:** Provide creators and professionals with a beautiful, self-hosted link-in-bio page they fully control — no vendor lock-in, no premium paywalls for basic features, and complete ownership of their data and analytics.
+> Equip every student — regardless of background, income, or whether their parents went to college — with the same quality of guidance that wealthy families pay $16,000 for.
 
-**Core Principles:**
+### Core Principles
 
-1. **Simplicity first** — The editor should be intuitive enough that a user can create and publish their page in under 2 minutes.
-2. **Visual quality** — Public pages should look polished and professional out of the box, rivaling paid alternatives.
-3. **Performance** — Server-rendered public pages load fast, score well on Lighthouse, and render correctly for social media crawlers.
-4. **Self-service** — No admin intervention needed. Users sign up, build, publish, and track analytics independently.
-5. **Test-driven confidence** — Every user journey is validated with E2E tests using agent-browser. No feature ships without comprehensive test coverage.
+1. **Proactive over passive.** The platform takes action on behalf of students rather than waiting for them to ask the right question.
+2. **First-gen by default.** Every feature is designed for the student who has no one to ask. This produces a better product for everyone.
+3. **Full-lifecycle continuity.** A student's context from high school carries forward to college advising and career matching. No data is thrown away at stage transitions.
+4. **Plain language always.** Financial aid terminology, admissions jargon, and credential complexity are translated into clear, actionable language.
+5. **Equity as a moat.** Serving first-gen and Title I populations is not a CSR initiative — it is the primary go-to-market strategy and the source of the platform's data flywheel advantage.
 
 ---
 
 ## 3. Target Users
 
-### Primary Persona: Content Creators & Professionals
+### Primary: High School Student (B2C)
+- **Age:** 14–18, grades 9–12
+- **Technical comfort:** High on mobile; expects app-like UX, not form-heavy web portals
+- **Key pain points:**
+  - No access to college counselor (372:1 national ratio; 1 in 5 schools have no counselor)
+  - Overwhelmed by college list-building without context on fit, affordability, or outcomes
+  - FAFSA confusion — 46% completion rate during 2024–25 rollout
+  - Does not understand the difference between sticker price and net price
+  - Application deadlines and requirements scattered across 6–7 different portals
+- **First-gen subpopulation (54% of market):** No family context for translating process; more likely to rule out colleges on sticker price; 2x more likely to leave after first year
 
-- **Who:** Social media creators, freelancers, small business owners, developers, designers — anyone who needs a single link to share across platforms.
-- **Technical comfort:** Low to medium. They can fill out forms and pick themes but shouldn't need to write code or manage infrastructure.
-- **Key needs:**
-  - A single URL to put in their Instagram/TikTok/Twitter bio
-  - A page that looks professional without design skills
-  - Knowing which links get clicked and when
-  - Ability to quickly update links as their content/projects change
+### Secondary: School Counselor (B2B, day-to-day user)
+- **Role:** High school guidance counselor, college advisor, TRIO/GEAR UP program coordinator
+- **Technical comfort:** Moderate; uses existing SIS tools (Naviance, Scoir, PowerSchool)
+- **Key pain points:**
+  - 372:1 caseload leaves ~19% of time for college advising
+  - No tool to triage which students need human intervention vs. AI-guided support
+  - FAFSA completion tracking is manual and reactive
+  - Cannot monitor outcomes across their caseload without heavy reporting work
+- **Decision-maker for:** District-level B2B license purchases
 
-### Secondary Persona: Self-Hosters / Developers
+### Tertiary: College Student / Adult Learner (Phase 2)
+- **Age:** 18–25 (traditional), 25–45 (adult learner)
+- **Key pain points:**
+  - 375:1 advising ratios; only 55% advised on graduation requirements
+  - Average 16.5 excess credits costing $5,500–$8,100 per student
+  - 30% change majors; 61% would change if they could go back
+  - Transfer students lose 43% of credits on average
+  - 41.9 million adults with "some college, no degree"
 
-- **Who:** Developers who want to run their own Linktree alternative rather than depend on a SaaS.
-- **Technical comfort:** High. They'll deploy to Vercel, configure Neon, and potentially customize themes.
-- **Key needs:**
-  - Full data ownership
-  - Open-source codebase they can fork and extend
-  - Clean, well-structured code they can understand and modify
+### Quaternary: Employer (Phase 3, revenue contributor)
+- **Role:** Talent acquisition teams at companies with campus recruiting programs
+- **Key pain points:**
+  - Resume/keyword matching doesn't surface career-readiness signals
+  - Diversity hiring pipelines are thin and shallow (3–6% Black interns vs. 14% enrollment)
+  - Tuition assistance programs have 2% utilization due to lack of employee awareness
 
 ---
 
 ## 4. MVP Scope
 
-### In Scope
+### Core Functionality
 
-**Core Functionality:**
-- ✅ User registration with username/slug selection
-- ✅ Email/password authentication
-- ✅ Google OAuth authentication
-- ✅ Profile editor (name, bio, avatar URL)
-- ✅ Link management (add, remove, reorder via drag-and-drop)
-- ✅ Header and divider items between links
-- ✅ Live preview alongside editor
-- ✅ 4 layout-varying themes with instant preview
-- ✅ Slug-based public pages (`/<username>`)
-- ✅ OG meta tags for social sharing
-- ✅ Click tracking per link with timestamps
-- ✅ Analytics dashboard with click counts and time-series charts
-- ✅ Marketing landing page at `/`
+| Feature | Status |
+|---------|--------|
+| ✅ Student onboarding — academic profile, interests, financial situation | In scope |
+| ✅ College Discovery Agent — personalized college list with fit, affordability, outcome scoring | In scope |
+| ✅ Financial Aid Agent — net price modeling, sticker vs. net price comparison, four-year cost projection | In scope |
+| ✅ Scholarship Matching Agent — profile-matched scholarship discovery with deadline tracking | In scope |
+| ✅ Application Management Agent — deadline tracker, checklist, FAFSA walkthrough | In scope |
+| ✅ Counselor Dashboard — caseload overview, FAFSA completion tracking, student flags | In scope |
+| ✅ Student progress timeline — visual journey from discovery through application submission | In scope |
+| ✅ Plain-language financial aid explainer — translates award letters into clear grant/loan/work breakdown | In scope |
+| ❌ Degree Planning Agent | Phase 2 |
+| ❌ Career Pipeline Agent | Phase 2/3 |
+| ❌ Transfer credit mapping | Phase 2 |
+| ❌ Employer recruiting portal | Phase 3 |
+| ❌ Adult learner re-enrollment flow | Phase 2 |
 
-**Technical:**
-- ✅ Server-side rendering for public pages
-- ✅ Responsive design (mobile-first)
-- ✅ TypeScript strict mode throughout
-- ✅ Biome for linting and formatting
-- ✅ Vitest for unit testing
-- ✅ agent-browser for E2E testing of all user journeys
-- ✅ Basic rate limiting on API routes
-- ✅ Explicit save button (no auto-save)
+### Technical
 
-**Deployment:**
-- ✅ Vercel deployment
-- ✅ Neon serverless Postgres
-- ✅ Neon Auth integration
-- ✅ Environment-based configuration
+| Feature | Status |
+|---------|--------|
+| ✅ Email/password authentication with student + counselor role separation | In scope |
+| ✅ Agent orchestration layer (proactive task queue, event-driven triggers) | In scope |
+| ✅ College database with admissions data, net price calculator integration | In scope |
+| ✅ Scholarship database with matching engine | In scope |
+| ✅ Notification system (email + in-app) for deadline alerts, agent actions | In scope |
+| ✅ Mobile-responsive web app | In scope |
+| ❌ Native iOS/Android app | Phase 2 |
+| ❌ SSO / district LMS integration (Clever, ClassLink) | Phase 2 |
+| ❌ Predictive analytics and ML outcome modeling | Phase 2 |
 
-### Out of Scope
+### Integration
 
-- ❌ Admin panel / moderation tools
-- ❌ File upload for avatars (URL-only for MVP)
-- ❌ Custom domains per user
-- ❌ Embed support (YouTube, Spotify, etc.)
-- ❌ Monetization features (tipping, paid links)
-- ❌ Email notifications / transactional emails
-- ❌ Auto-save / draft vs published states
-- ❌ Link scheduling (show/hide by date)
-- ❌ Geographic analytics (IP-based location data)
-- ❌ Referrer tracking
-- ❌ Custom CSS / theme editor per user
-- ❌ Team/organization accounts
-- ❌ API access for third-party integrations
-- ❌ Mobile app
-- ❌ Bot protection beyond basic rate limiting
+| Feature | Status |
+|---------|--------|
+| ✅ NCES/IPEDS college data integration | In scope |
+| ✅ College Scorecard API (net price, outcomes) | In scope |
+| ✅ Common App deadline data | In scope |
+| ✅ FAFSA aid estimator / Federal Student Aid API | In scope |
+| ❌ Common App pre-fill integration | Phase 2 |
+| ❌ Naviance/Scoir data import | Phase 2 |
+| ❌ Handshake API | Phase 3 |
+
+### Deployment
+
+| Feature | Status |
+|---------|--------|
+| ✅ Vercel (frontend) + Neon Postgres (database) | In scope |
+| ✅ Environment-based configuration | In scope |
+| ❌ On-premise/private cloud for district data requirements | Phase 3 |
+| ❌ SOC 2 Type II certification | Phase 2 |
+| ❌ FERPA-compliant institutional deployment | Phase 2 |
 
 ---
 
 ## 5. User Stories
 
-### Registration & Authentication
+### S1 — First-Gen Student: College Discovery
+> **As a first-generation high school junior with a 3.4 GPA and a $45,000 family income, I want to see a personalized list of colleges where I am likely to be admitted, can actually afford to attend, and where students with my background succeed — so that I stop ruling out schools I've never heard of and stop wasting time on schools that are beyond my reach.**
 
-**US-1:** As a new user, I want to sign up with my email and choose a unique username, so that I get a personal URL like `/cole` for my link page.
-> *Example: User visits `/`, clicks "Get Started", enters name, email, password, and desired slug `cole`. System checks slug availability in real-time. On success, user lands on the editor.*
+**Example:** Maria, whose parents immigrated from Guatemala, has been told by classmates she should apply to "safety schools" but doesn't know what that means. The platform surfaces Arizona State (high acceptance, $14,000 net price after aid for her income bracket, 58% first-gen graduation rate), flags that she qualifies for a likely full-ride at her state's honors college, and explains in plain language why each school appears on her list.
 
-**US-2:** As a returning user, I want to log in with my email/password or Google account, so that I can quickly access my editor.
-> *Example: User clicks "Sign In", chooses "Continue with Google", authenticates via OAuth, and is redirected to their editor dashboard.*
+---
 
-### Profile Editing
+### S2 — First-Gen Student: Financial Aid Demystification
+> **As a student who just received four different award letters, I want to understand exactly how much each school will actually cost me — not the sticker price — so that I can make a financially informed decision instead of choosing the school with the flashiest brochure.**
 
-**US-3:** As a logged-in user, I want to edit my name, bio, and avatar URL with a live preview, so that I can see exactly how my page will look before saving.
-> *Example: User types in the bio field "Designer & coffee enthusiast" and the preview panel on the right instantly updates to show the new bio text.*
+**Example:** The platform ingests or parses each award letter, categorizes every line item as "free money (grant/scholarship)," "money you repay (loan)," or "money you earn (work-study)," calculates the true out-of-pocket cost, and projects total four-year debt burden against median earnings for the student's intended major.
 
-**US-4:** As a logged-in user, I want to add, remove, and reorder links using drag-and-drop, so that I can organize my page the way I want.
-> *Example: User has 5 links. They grab the drag handle on "My Portfolio" and drag it from position 4 to position 1. The preview updates immediately. They click "Save" to persist the change.*
+---
 
-**US-5:** As a logged-in user, I want to add section headers and dividers between my links, so that I can visually group related links.
-> *Example: User adds a header "Social Media" above their Twitter and Instagram links, and a divider before their "Projects" section.*
+### S3 — Student: Scholarship Discovery
+> **As a high school senior, I want to be automatically matched with scholarships I qualify for as my profile changes — without having to search manually — so that I don't miss deadlines or leave money on the table.**
 
-### Themes
+**Example:** When a student adds a new extracurricular activity or updates their intended major, the Scholarship Agent re-runs matching, surfaces three new opportunities, and sends a notification: "You now qualify for the National Association of Hispanic Journalists scholarship — deadline in 23 days. Your profile is 85% complete for this application."
 
-**US-6:** As a logged-in user, I want to pick from 4 visual themes and see the result instantly in the preview, so that I can choose the look that best represents me.
-> *Example: User clicks the "Colorful" theme thumbnail. The preview immediately switches to a vibrant gradient background with rounded, colorful link buttons. They try "Professional" next — the preview shifts to a clean, muted layout with serif typography.*
+---
 
-### Public Pages
+### S4 — Student: Application Deadline Management
+> **As a high school senior applying to seven colleges with different deadlines, I want a single unified checklist that tracks every requirement — Common App, supplements, FAFSA, CSS Profile, institutional scholarships — so that I never miss a deadline.**
 
-**US-7:** As a visitor, I want to view someone's link page at their public URL and click their links, so that I can find their content.
-> *Example: Visitor opens `example.com/cole` in their browser. They see Cole's avatar, bio, and list of links rendered with the "Dark" theme. They click "My YouTube Channel" and are redirected to YouTube.*
+**Example:** The Application Management Agent detects that one school requires both Common App and an institutional scholarship application with a deadline two weeks earlier than the admission deadline, surfaces the conflict, and creates a task for the student to complete the scholarship form first.
 
-### Analytics
+---
 
-**US-8:** As a logged-in user, I want to see how many times each of my links has been clicked and view click trends over time, so that I can understand what content resonates with my audience.
-> *Example: User navigates to their analytics dashboard. They see a bar chart showing "YouTube: 342 clicks, Portfolio: 128 clicks, Twitter: 89 clicks" and a line chart showing daily clicks over the past 30 days.*
+### S5 — Student: FAFSA Guidance
+> **As a first-gen student whose parents are unfamiliar with financial aid, I want step-by-step guidance through the FAFSA — including what documents to gather, what terms mean, and common mistakes to avoid — so that I actually complete it and maximize my aid eligibility.**
+
+**Example:** The FAFSA walkthrough explains the difference between "student assets" and "parent assets," flags that a 529 plan owned by a grandparent needs to be handled differently than one owned by a parent, and sends reminders at school-specific priority deadlines (not just the federal deadline).
+
+---
+
+### S6 — Counselor: Caseload Management
+> **As a high school counselor with 450 students, I want to see at a glance which students are behind on key milestones — FAFSA not started, no college list built, application deadlines approaching — so that I can focus my limited time on students who most need human intervention.**
+
+**Example:** The counselor dashboard shows a red/yellow/green status for each student across five milestones, filterable by grade, FAFSA status, first-gen status, and urgency score. The counselor can click into any student's profile, see the agent's activity log, and send a personalized outreach message.
+
+---
+
+### S7 — Counselor: Outcome Tracking
+> **As a counselor, I want to see aggregate outcome data for my cohort — FAFSA completion rates, college match quality, scholarship dollars secured — so that I can demonstrate program impact to my district administration and identify systemic gaps.**
+
+**Example:** End-of-year report shows the counselor's class achieved 73% FAFSA completion (vs. 46% national average), $2.3M in scholarships secured, and 68% college match rate. The report is shareable and formatted for district budget presentations.
+
+---
+
+### S8 — Technical: Agent Proactivity
+> **As the platform, I want to monitor student profiles for trigger events — a new test score, an approaching deadline, a profile update — and automatically queue agent actions without waiting for the student to log in, so that students receive timely guidance even if they're not actively using the platform.**
+
+**Example:** When FAFSA opens in December, every student who has not completed it receives a personalized push notification with their estimated EFC/SAI pre-calculated from their profile data, a link to the step-by-step walkthrough, and their priority deadline for the school at the top of their list.
 
 ---
 
@@ -146,661 +196,575 @@ The application is built as a full-stack Next.js app deployed on Vercel, backed 
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                        Vercel                           │
-│  ┌───────────────────────────────────────────────────┐  │
-│  │                   Next.js App                     │  │
-│  │                                                   │  │
-│  │  ┌─────────────┐  ┌──────────┐  ┌─────────────┐  │  │
-│  │  │  SSR Public  │  │   API    │  │  SPA Editor  │  │  │
-│  │  │   Pages      │  │  Routes  │  │  + Dashboard │  │  │
-│  │  │  /<slug>     │  │ /api/*   │  │  /editor     │  │  │
-│  │  └─────────────┘  └──────────┘  └─────────────┘  │  │
-│  │                        │                          │  │
-│  └────────────────────────┼──────────────────────────┘  │
-│                           │                             │
-└───────────────────────────┼─────────────────────────────┘
-                            │
-                  ┌─────────┴─────────┐
-                  │   Neon Postgres   │
-                  │  + Neon Auth      │
-                  │  (Serverless)     │
-                  └───────────────────┘
+│                     Next.js App Layer                    │
+│   Student Dashboard │ Counselor Dashboard │ Public Pages │
+└──────────────────────────────┬──────────────────────────┘
+                               │
+┌──────────────────────────────▼──────────────────────────┐
+│                    Agent Orchestration Layer              │
+│  ┌──────────────┐ ┌──────────────┐ ┌──────────────────┐ │
+│  │  Discovery   │ │  Financial   │ │   Application    │ │
+│  │    Agent     │ │  Aid Agent   │ │  Mgmt Agent      │ │
+│  └──────────────┘ └──────────────┘ └──────────────────┘ │
+│  ┌──────────────┐                                        │
+│  │ Scholarship  │                                        │
+│  │    Agent     │                                        │
+│  └──────────────┘                                        │
+│  Task Queue (event-driven triggers, scheduled jobs)      │
+└──────────────────────────────┬──────────────────────────┘
+                               │
+┌──────────────────────────────▼──────────────────────────┐
+│                    Data & Integration Layer               │
+│   Neon Postgres │ Claude API │ External Data APIs        │
+│   IPEDS/Scorecard │ FAFSA API │ Scholarship DB           │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ### Directory Structure
 
 ```
-link-in-bio-page-builder/
-├── src/
-│   ├── app/                          # Next.js App Router
-│   │   ├── (marketing)/              # Marketing/landing route group
-│   │   │   └── page.tsx              # Landing page at /
-│   │   ├── (auth)/                   # Auth route group
-│   │   │   ├── login/page.tsx
-│   │   │   └── signup/page.tsx
-│   │   ├── (dashboard)/              # Authenticated route group
-│   │   │   ├── editor/page.tsx       # Profile editor + live preview
-│   │   │   ├── analytics/page.tsx    # Analytics dashboard
-│   │   │   └── settings/page.tsx     # Account settings (slug change, etc.)
-│   │   ├── [slug]/page.tsx           # Public profile pages (SSR)
-│   │   ├── api/
-│   │   │   ├── auth/[...all]/route.ts  # Neon Auth handlers
-│   │   │   ├── profile/route.ts      # Profile CRUD
-│   │   │   ├── links/route.ts        # Link management
-│   │   │   ├── links/reorder/route.ts
-│   │   │   ├── click/route.ts        # Click tracking endpoint
-│   │   │   └── analytics/route.ts    # Analytics data
-│   │   ├── layout.tsx                # Root layout
-│   │   └── globals.css
-│   ├── components/
-│   │   ├── ui/                       # shadcn/ui components
-│   │   ├── editor/                   # Editor-specific components
-│   │   │   ├── profile-form.tsx
-│   │   │   ├── link-list.tsx
-│   │   │   ├── link-item.tsx
-│   │   │   ├── add-link-dialog.tsx
-│   │   │   └── theme-picker.tsx
-│   │   ├── preview/                  # Live preview components
-│   │   │   └── preview-panel.tsx
-│   │   ├── themes/                   # Theme layout components
-│   │   │   ├── minimal.tsx
-│   │   │   ├── dark.tsx
-│   │   │   ├── colorful.tsx
-│   │   │   └── professional.tsx
-│   │   ├── analytics/                # Analytics components
-│   │   │   ├── click-chart.tsx
-│   │   │   ├── top-links.tsx
-│   │   │   └── time-series.tsx
-│   │   └── marketing/                # Landing page components
-│   │       ├── hero.tsx
-│   │       └── features.tsx
-│   ├── lib/
-│   │   ├── auth.ts                   # Neon Auth server instance
-│   │   ├── db/
-│   │   │   ├── index.ts              # Drizzle client
-│   │   │   ├── schema.ts             # Drizzle schema definitions
-│   │   │   └── migrations/           # Drizzle migrations
-│   │   ├── rate-limit.ts             # Rate limiting utility
-│   │   └── utils.ts                  # Shared utilities
-│   ├── hooks/                        # Custom React hooks
-│   │   ├── use-profile.ts
-│   │   └── use-analytics.ts
-│   └── types/                        # Shared TypeScript types
-│       └── index.ts
-├── tests/
-│   ├── unit/                         # Vitest unit tests
-│   │   ├── lib/
-│   │   └── components/
-│   └── e2e/                          # agent-browser E2E tests
-│       ├── auth.test.ts
-│       ├── editor.test.ts
-│       ├── public-page.test.ts
-│       └── analytics.test.ts
-├── public/                           # Static assets
-├── drizzle.config.ts                 # Drizzle configuration
-├── biome.json                        # Biome linter/formatter config
-├── next.config.ts                    # Next.js configuration
-├── tailwind.config.ts
-├── tsconfig.json
-├── vitest.config.ts
-└── package.json
+src/
+├── app/
+│   ├── (auth)/               # Login, signup, onboarding
+│   ├── (student)/            # Student dashboard, profile, agents
+│   ├── (counselor)/          # Counselor dashboard, caseload
+│   └── api/
+│       ├── agents/           # Agent trigger endpoints
+│       ├── colleges/         # College search + detail
+│       ├── scholarships/     # Scholarship matching
+│       ├── financial-aid/    # Net price + award letter parsing
+│       └── applications/     # Deadline tracking
+├── agents/
+│   ├── discovery/            # College Discovery Agent logic
+│   ├── financial-aid/        # Financial Aid Agent logic
+│   ├── scholarships/         # Scholarship Matching Agent logic
+│   ├── applications/         # Application Management Agent logic
+│   └── orchestrator.ts       # Event-driven task queue
+├── components/
+│   ├── student/              # Student-facing UI components
+│   ├── counselor/            # Counselor dashboard components
+│   ├── agents/               # Agent action cards, timelines
+│   └── ui/                   # shadcn/ui primitives
+├── lib/
+│   ├── db/                   # Drizzle schema + connection
+│   ├── integrations/         # IPEDS, Scorecard, FAFSA API clients
+│   ├── ai/                   # Claude API client + prompt templates
+│   └── validations/          # Zod schemas
+└── types/                    # Shared TypeScript types
 ```
 
 ### Key Design Patterns
 
-1. **Route Groups** — Use Next.js route groups `(marketing)`, `(auth)`, `(dashboard)` to organize layouts without affecting URL structure.
-2. **Server Components by default** — All pages and layouts are React Server Components unless they need interactivity. Client Components are used only in the editor, theme picker, and analytics charts.
-3. **Server Actions for mutations** — Use Next.js Server Actions for profile saves, link CRUD, and settings changes. API routes for click tracking (called from public pages) and analytics data fetching.
-4. **Optimistic UI** — The editor preview updates instantly on the client; the save button persists to the database.
-5. **SSR for public pages** — The `[slug]` dynamic route fetches profile data server-side and renders the full HTML with OG meta tags.
+- **Agent-as-service:** Each agent is a standalone module with a `run(studentId, context)` interface, invokable from the task queue, API routes, or direct triggers.
+- **Event-driven proactivity:** Profile updates, date triggers (deadlines approaching), and external events (FAFSA opening, test score release) enqueue agent runs.
+- **Explain-your-work:** Every agent action surfaces a plain-language explanation of why it acted — critical for first-gen users who need to understand, not just receive recommendations.
+- **Optimistic UI:** Agent results are streamed to the client as they are computed; the UI shows partial results with a loading state rather than blocking.
+- **Counselor observability:** Every agent action is logged to a counselor-visible activity feed with human-readable summaries.
 
 ---
 
-## 7. Features
+## 7. Agent Specifications
 
-### 7.1 Marketing Landing Page
+### 7.1 College Discovery Agent
 
-**Route:** `/`
+**Purpose:** Replace passive college search with proactive, personalized college list building that accounts for admission probability, true cost, and career outcomes.
 
-A public homepage that explains the product and drives signups.
+**Triggers:**
+- Initial profile completion
+- GPA or test score update
+- Financial information update
+- Student adds/removes a college from their list
 
-- Hero section with tagline, description, and CTA buttons ("Get Started" / "Sign In")
-- Brief feature highlights (themes, analytics, custom URL)
-- Example preview showing what a link page looks like
-- Footer with minimal links
+**Operations:**
+1. Query IPEDS/Scorecard for institutions matching student's major interest, geographic preferences, and institution type preferences
+2. Score each institution on three dimensions: admission probability (using historical acceptance rates by GPA/test score band), net price (using net price calculator data for the student's income bracket), and outcome quality (earnings data, completion rates for first-gen students)
+3. Rank and cluster into Reach / Match / Likely tiers
+4. Generate plain-language explanation for each recommendation
+5. Flag scholarship opportunities at each institution
 
-### 7.2 Authentication
+**Key features:**
+- Explains *why* each school appears on the list (not just a score)
+- Dynamically updates as student profile changes
+- Surfaces schools the student would not have found via traditional search (e.g., honors programs at state schools with strong merit aid)
+- First-gen flag: highlights schools with dedicated first-gen support programs
 
-**Routes:** `/login`, `/signup`
+---
 
-Powered by Neon Auth (built on Better Auth).
+### 7.2 Financial Aid Agent
 
-- **Signup flow:**
-  1. User enters display name, email, password, and desired username/slug
-  2. Real-time slug availability check (debounced API call)
-  3. Slug validation: lowercase alphanumeric + hyphens, 3-30 characters, no reserved words
-  4. On success → redirect to `/editor`
-- **Login flow:**
-  1. Email/password form OR "Continue with Google" button
-  2. On success → redirect to `/editor`
-- **Reserved slugs:** `login`, `signup`, `editor`, `analytics`, `settings`, `api`, `admin`, `about`, `help`, etc.
+**Purpose:** Translate the opaque financial aid system into clear cost comparisons and debt projections.
 
-### 7.3 Profile Editor + Live Preview
+**Triggers:**
+- College added to student's list
+- Award letter uploaded or entered
+- Financial profile updated
 
-**Route:** `/editor`
+**Operations:**
+1. Fetch net price data from College Scorecard for the student's income bracket at each school on their list
+2. Model four-year total cost (tuition + fees + room + board + books + travel - grants - scholarships)
+3. Project post-graduation debt burden and monthly payment against median earnings for the student's intended major
+4. Parse award letters (if uploaded) and categorize each line item: grant, scholarship, subsidized loan, unsubsidized loan, PLUS loan, work-study
+5. Flag award letters that contain loan amounts without using the word "loan"
 
-The core editing experience for building a link page.
+**Key features:**
+- Side-by-side cost comparison across schools on the student's list
+- "True cost" view that strips loans and work-study from "total aid" figures
+- ROI calculator: debt burden vs. lifetime earnings premium by major and institution
+- Plain-language award letter decoder with tooltips for every term
 
-**Editor Panel (left side on desktop):**
-- **Profile section:**
-  - Display name (text input, max 50 chars)
-  - Bio (textarea, max 160 chars, with character counter)
-  - Avatar URL (text input with URL validation, small preview thumbnail)
-- **Links section:**
-  - List of current links with drag handles (dnd-kit)
-  - Each link item shows: drag handle, title, URL, delete button
-  - "Add Link" button opens inline form (title + URL fields)
-  - "Add Header" button adds a text header item
-  - "Add Divider" button adds a visual divider item
-  - Items are sortable via drag-and-drop
-- **Save button** at the bottom — disabled when no changes, shows loading state during save, success/error feedback via toast notification
+---
 
-**Preview Panel (right side on desktop):**
-- Renders the public page exactly as it will appear
-- Updates in real-time as the user types/reorders (client-side state, not DB)
-- Displayed inside a phone-frame mockup for context
-- Shows the currently selected theme
+### 7.3 Scholarship Matching Agent
 
-**Layout Modes:**
-- **Desktop (≥1024px):** Side-by-side with resizable panels. Toggle buttons in toolbar to: show both panels, show editor only, show preview only.
-- **Mobile (<1024px):** Tab toggle between "Edit" and "Preview" views.
+**Purpose:** Continuously match student profile against scholarship opportunities and proactively surface deadlines.
 
-### 7.4 Theme System
+**Triggers:**
+- Profile updates (new activities, awards, demographic info, major change)
+- Scheduled weekly re-match scan
+- Deadline approaching (7-day, 3-day, 1-day notifications)
 
-**Accessible from:** Theme picker in the editor (above or within the editor panel)
+**Operations:**
+1. Match student profile against scholarship database using attribute overlap scoring
+2. Surface new matches since last scan
+3. Estimate application completion percentage based on required materials the student has already provided
+4. Queue deadline reminders for matched scholarships
 
-4 themes that vary in both visual style and layout structure:
+**Key features:**
+- Match score with explanation ("You qualify because you are a first-generation student pursuing STEM in Arizona")
+- Auto-populate scholarship applications with existing profile data where possible
+- Distinguish between scholarships requiring essays and those that are auto-applied
+- Track total scholarship dollars applied for and secured
 
-| Theme | Vibe | Layout Notes |
-|---|---|---|
-| **Minimal** | Clean, white/light gray, sans-serif, lots of whitespace | Centered single-column, simple rectangular link buttons, small avatar |
-| **Dark** | Dark backgrounds, light text, neon/accent colors, modern feel | Centered column, rounded pill-shaped link buttons, larger avatar with glow effect |
-| **Colorful** | Vibrant gradients, playful, rounded shapes, bold typography | Wider card-based links, avatar with colored border ring, gradient background |
-| **Professional** | Muted tones, serif headings, structured, business-card feel | Two-column layout on desktop (avatar/bio left, links right), subtle shadows, traditional buttons |
+---
 
-**Theme Picker UI:**
-- Horizontal row of theme thumbnail cards
-- Clicking a theme instantly updates the preview panel
-- Selected theme is visually highlighted
-- Theme selection is saved with the profile
+### 7.4 Application Management Agent
 
-### 7.5 Public Pages + SEO
+**Purpose:** Unify all application requirements across every school and external application (FAFSA, CSS Profile) into a single, prioritized task list.
 
-**Route:** `/[slug]` (dynamic, server-rendered)
+**Triggers:**
+- College added to list
+- Deadline milestone reached (90/60/30/14/7/3/1 days)
+- Student marks a task complete
+- FAFSA opens (October 1 annually)
 
-- Fetches user profile, links, and theme from the database at request time
-- Renders the full page server-side with the selected theme component
-- Injects OG meta tags into `<head>`:
-  - `og:title` → User's display name
-  - `og:description` → User's bio
-  - `og:image` → User's avatar URL (or a generated fallback)
-  - `og:url` → Full canonical URL
-  - `twitter:card` → `summary`
-- Each link is a clickable `<a>` tag that:
-  1. Fires a click-tracking request to `/api/click` (via `navigator.sendBeacon` or fetch)
-  2. Then navigates to the target URL
-- Returns 404 for non-existent slugs with a friendly "Page not found" message
+**Operations:**
+1. Fetch deadline and requirements data for each school on the student's list
+2. Build a unified task list ordered by urgency (earliest hard deadline first)
+3. Detect conflicts (institutional scholarship deadline earlier than admission deadline)
+4. Generate FAFSA walkthrough steps personalized to student's financial situation
+5. Send notifications for approaching deadlines
 
-### 7.6 Click Analytics
-
-**Tracking endpoint:** `POST /api/click`
-
-- Accepts: `{ linkId: string }`
-- Records: link ID, timestamp, (IP hash for rate limiting — not stored for analytics)
-- Rate limited: max 1 click per link per IP per 10 seconds (prevent spam)
-
-**Dashboard route:** `/analytics`
-
-- **Summary cards:** Total clicks (all time), clicks this week, number of active links
-- **Top links table:** Ranked list of links by total clicks, showing title, URL, click count
-- **Time-series chart:** Line chart showing total clicks per day over the last 30 days
-  - Toggle between 7-day / 30-day / 90-day views
-  - Uses a lightweight chart library (e.g., Recharts, which works well with shadcn)
-- **Per-link breakdown:** Expandable rows in the top links table showing that link's daily clicks
+**Key features:**
+- Single unified checklist across all schools, FAFSA, CSS Profile, and scholarships
+- Conflict detection (surfacing hidden earlier deadlines)
+- FAFSA step-by-step guide with document checklist (FSA ID, tax returns, bank statements)
+- Progress percentage per application
+- Counselor-visible completion status
 
 ---
 
 ## 8. Technology Stack
 
-### Core Framework
+### Frontend/Framework
 | Technology | Version | Purpose |
-|---|---|---|
-| **Next.js** | 15.x | Full-stack React framework (App Router, SSR, API Routes) |
-| **React** | 19.x | UI library |
-| **TypeScript** | 5.x | Type safety (strict mode) |
+|------------|---------|---------|
+| Next.js | 15.x (App Router) | Full-stack framework, SSR, API routes |
+| React | 19.x | UI component layer |
+| Tailwind CSS | v4 | Utility-first styling |
+| shadcn/ui | latest | Component primitives |
+| Recharts | 3.x | Analytics charts (counselor dashboard) |
 
-### Styling & UI
+### Backend/Data
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| Neon Postgres | serverless | Primary database |
+| Drizzle ORM | 0.45+ | Type-safe DB queries |
+| Zod | 4.x | Input validation |
+
+### AI/Agents
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| Anthropic Claude API | claude-sonnet-4-6 | Agent reasoning, text generation, award letter parsing |
+| Vercel AI SDK | latest | Streaming responses, tool use |
+
+### Auth
 | Technology | Purpose |
-|---|---|
-| **Tailwind CSS** 4.x | Utility-first CSS framework |
-| **shadcn/ui** | Accessible, customizable component library |
-| **CSS Transitions** | Animations (no extra motion libraries) |
+|------------|---------|
+| Neon Auth | Email/password + Google OAuth |
 
-### Database & Auth
+### External Data APIs
+| API | Purpose |
+|-----|---------|
+| IPEDS Data API (NCES) | Institutional characteristics, graduation rates |
+| College Scorecard API (Dept of Ed) | Net price by income, earnings outcomes, completion rates |
+| Federal Student Aid API | FAFSA aid estimator, EFC/SAI calculation |
+| Common Data Set sources | Admissions statistics (scraped/aggregated) |
+
+### Tooling
 | Technology | Purpose |
-|---|---|
-| **Neon** | Serverless Postgres (database hosting) |
-| **Neon Auth** | Managed authentication (Better Auth-based) |
-| **@neondatabase/auth** | Neon Auth SDK for Next.js |
-| **Drizzle ORM** | Type-safe database queries and migrations |
-| **drizzle-kit** | Schema migration tooling |
-
-### Key Libraries
-| Library | Purpose |
-|---|---|
-| **@dnd-kit/core** + **@dnd-kit/sortable** | Drag-and-drop link reordering |
-| **Recharts** | Charts for analytics dashboard |
-| **zod** | Runtime schema validation (forms, API inputs) |
-
-### Dev Tooling
-| Tool | Purpose |
-|---|---|
-| **Biome** | Linting + formatting (replaces ESLint + Prettier) |
-| **Vitest** | Unit testing |
-| **agent-browser** | E2E testing (Playwright-based CLI) |
-
-### Deployment
-| Service | Purpose |
-|---|---|
-| **Vercel** | Hosting, CI/CD, edge functions |
-| **Neon** | Managed Postgres (serverless, auto-scaling) |
+|------------|---------|
+| Biome | Linting + formatting |
+| Vitest | Unit testing |
+| dnd-kit | Drag-and-drop (college list reordering) |
+| Sonner | Toast notifications |
 
 ---
 
 ## 9. Security & Configuration
 
 ### Authentication & Authorization
-
-- **Neon Auth** handles all authentication flows:
-  - Email/password registration and login
-  - Google OAuth (using Neon Auth's built-in Google credentials for dev, custom credentials for production)
-  - Session management via signed cookies (cached for 5 minutes by default)
-- **Authorization:** Middleware protects `/editor`, `/analytics`, `/settings` routes — redirects to `/login` if unauthenticated
-- **Data isolation:** All queries filter by the authenticated user's ID. Users can only read/write their own profile and links.
-
-### Rate Limiting
-
-- **API routes:** Simple in-memory rate limiting (or Vercel KV if needed)
-  - `/api/click`: 60 requests/minute per IP
-  - `/api/profile`, `/api/links`: 30 requests/minute per user
-  - `/api/auth/*`: 10 requests/minute per IP (login/signup)
-- **Click deduplication:** Ignore duplicate clicks on the same link from the same IP within 10 seconds
+- Email/password and Google OAuth via Neon Auth
+- Role-based access: `student`, `counselor`, `admin`
+- Middleware-enforced route protection: `/dashboard/*` requires auth, `/counselor/*` requires counselor role
+- Students can only access their own profile data; counselors can access profiles of students in their caseload
 
 ### Configuration (Environment Variables)
-
-```env
-# Neon Database
+```bash
+# Database
 DATABASE_URL=                    # Neon Postgres connection string
+AUTH_SECRET=                     # Session cookie secret
 
-# Neon Auth
-NEON_AUTH_BASE_URL=              # Neon Auth endpoint URL
-NEON_AUTH_COOKIE_SECRET=         # Secret for signing session cookies
+# AI
+ANTHROPIC_API_KEY=               # Claude API key
 
-# Google OAuth (production)
-GOOGLE_CLIENT_ID=                # Google OAuth client ID
-GOOGLE_CLIENT_SECRET=            # Google OAuth client secret
+# External Data
+COLLEGE_SCORECARD_API_KEY=       # Dept of Education Scorecard API
 
 # App
-NEXT_PUBLIC_APP_URL=             # Public app URL (e.g., https://yourdomain.com)
+NEXT_PUBLIC_APP_URL=             # Canonical URL
 ```
 
-### Security Scope
+### Security Scope — In Scope (MVP)
+- ✅ HTTPS-only (enforced by Vercel)
+- ✅ Input validation on all API routes (Zod)
+- ✅ Rate limiting on auth and agent endpoints
+- ✅ SQL injection prevention (Drizzle parameterized queries)
+- ✅ XSS prevention (React escaping, no dangerouslySetInnerHTML)
+- ✅ CSRF protection (Next.js built-in)
+- ✅ Secure session cookies (httpOnly, sameSite)
 
-**In scope:**
-- ✅ Input sanitization (XSS prevention on bio, link titles/URLs)
-- ✅ URL validation for links (must be valid HTTP/HTTPS URLs)
-- ✅ Slug validation (alphanumeric + hyphens only)
-- ✅ CSRF protection (built into Neon Auth / Next.js)
-- ✅ Rate limiting on all API endpoints
+### Security Scope — Out of Scope (MVP)
+- ❌ FERPA-compliant institutional deployment (required for Phase 2 B2B)
+- ❌ SOC 2 Type II (required for Phase 2/3 district contracts)
+- ❌ PII encryption at rest (beyond Neon's default)
+- ❌ Audit logging for FERPA compliance
 
-**Out of scope for MVP:**
-- ❌ Content moderation / link scanning
-- ❌ Two-factor authentication
-- ❌ IP allowlisting
-- ❌ Advanced bot protection (CAPTCHA, etc.)
+### Privacy Considerations
+- Students under 18 require parental consent per COPPA
+- Student data is never sold or used for advertising targeting
+- Counselors can only view profiles of students who have connected their account to that counselor's caseload
+- AI processing of student data uses Anthropic's API — data handling terms apply
 
 ---
 
-## 10. Database Schema
+## 10. API Specification
 
-### Tables
-
-```sql
--- Users table is managed by Neon Auth (neon_auth schema)
--- It provides: id, email, name, image, created_at, updated_at
-
--- Profiles (extends Neon Auth user)
-CREATE TABLE profiles (
-  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id       TEXT NOT NULL UNIQUE REFERENCES neon_auth.users(id) ON DELETE CASCADE,
-  slug          TEXT NOT NULL UNIQUE,
-  display_name  TEXT NOT NULL DEFAULT '',
-  bio           TEXT NOT NULL DEFAULT '',
-  avatar_url    TEXT NOT NULL DEFAULT '',
-  theme         TEXT NOT NULL DEFAULT 'minimal',
-  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
-CREATE UNIQUE INDEX idx_profiles_slug ON profiles(slug);
-CREATE INDEX idx_profiles_user_id ON profiles(user_id);
-
--- Link items (links, headers, dividers)
-CREATE TABLE link_items (
-  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  profile_id    UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  type          TEXT NOT NULL DEFAULT 'link',  -- 'link' | 'header' | 'divider'
-  title         TEXT NOT NULL DEFAULT '',
-  url           TEXT NOT NULL DEFAULT '',       -- empty for headers/dividers
-  sort_order    INTEGER NOT NULL DEFAULT 0,
-  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
-CREATE INDEX idx_link_items_profile_id ON link_items(profile_id);
-
--- Click events
-CREATE TABLE click_events (
-  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  link_item_id  UUID NOT NULL REFERENCES link_items(id) ON DELETE CASCADE,
-  clicked_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
-CREATE INDEX idx_click_events_link_item_id ON click_events(link_item_id);
-CREATE INDEX idx_click_events_clicked_at ON click_events(clicked_at);
-```
-
-### Drizzle Schema (TypeScript)
-
-The above SQL will be represented as Drizzle schema definitions in `src/lib/db/schema.ts`, using `pgTable`, with proper TypeScript types inferred via `InferSelectModel` and `InferInsertModel`.
+### Authentication
+All authenticated endpoints require a valid session cookie. Roles are enforced per endpoint.
 
 ---
 
-## 11. API Specification
+### `POST /api/agents/discovery/run`
+Trigger the College Discovery Agent for the authenticated student.
 
-### Profile
-
-**GET `/api/profile`** — Get current user's profile
-- Auth: Required
-- Response: `{ profile: Profile, links: LinkItem[] }`
-
-**PUT `/api/profile`** — Update current user's profile
-- Auth: Required
-- Body: `{ displayName: string, bio: string, avatarUrl: string, theme: string }`
-- Validation: Zod schema
-- Response: `{ profile: Profile }`
-
-### Links
-
-**POST `/api/links`** — Add a new link item
-- Auth: Required
-- Body: `{ type: 'link' | 'header' | 'divider', title?: string, url?: string }`
-- Response: `{ link: LinkItem }`
-
-**DELETE `/api/links/[id]`** — Remove a link item
-- Auth: Required
-- Response: `{ success: true }`
-
-**PUT `/api/links/reorder`** — Reorder all link items
-- Auth: Required
-- Body: `{ items: { id: string, sortOrder: number }[] }`
-- Response: `{ success: true }`
-
-### Click Tracking
-
-**POST `/api/click`** — Record a link click (called from public pages)
-- Auth: None (public)
-- Body: `{ linkId: string }`
-- Rate limited: 60/min per IP, 10-second dedup per link per IP
-- Response: `{ success: true }`
-
-### Analytics
-
-**GET `/api/analytics`** — Get analytics for current user's links
-- Auth: Required
-- Query params: `?period=7d|30d|90d`
-- Response:
+**Request:**
 ```json
 {
-  "summary": {
-    "totalClicks": 1234,
-    "clicksThisWeek": 89,
-    "activeLinks": 8
-  },
-  "topLinks": [
-    { "id": "...", "title": "YouTube", "url": "...", "clicks": 342 }
-  ],
-  "timeSeries": [
-    { "date": "2026-02-19", "clicks": 45 },
-    { "date": "2026-02-20", "clicks": 52 }
+  "forceRefresh": true
+}
+```
+
+**Response (streamed):**
+```json
+{
+  "status": "running",
+  "colleges": [
+    {
+      "unitId": "196097",
+      "name": "Arizona State University",
+      "tier": "match",
+      "admissionProbability": 0.87,
+      "netPrice": 14200,
+      "fourYearCost": 62800,
+      "firstGenGradRate": 0.58,
+      "explanation": "Strong match for your 3.4 GPA. Net price of $14,200/year for your income bracket after Pell Grant. 58% graduation rate for first-gen students — above national average.",
+      "scholarships": [
+        { "name": "ASU New American University Scholarship", "amount": 4000, "renewable": true }
+      ]
+    }
   ]
 }
 ```
 
-### Slug Availability
+---
 
-**GET `/api/slug/check?slug=cole`** — Check if slug is available
-- Auth: None (used during signup)
-- Response: `{ available: boolean }`
+### `GET /api/colleges/search`
+Search college database with filters.
+
+**Query params:** `q`, `state`, `type` (public|private|community), `maxNetPrice`, `minGradRate`, `majorId`
+
+**Response:**
+```json
+{
+  "results": [
+    {
+      "unitId": "196097",
+      "name": "Arizona State University",
+      "city": "Tempe",
+      "state": "AZ",
+      "type": "public",
+      "acceptanceRate": 0.88,
+      "netPrice": { "0-30k": 12400, "30-48k": 16200, "48-75k": 21800, "75-110k": 28500, "110k+": 38000 },
+      "medianEarnings10yr": 52400,
+      "firstGenGradRate": 0.58
+    }
+  ],
+  "total": 142
+}
+```
 
 ---
 
-## 12. Success Criteria
+### `POST /api/financial-aid/award-letter`
+Parse an uploaded award letter and categorize aid components.
+
+**Request:** `multipart/form-data` with `file` (PDF or image)
+
+**Response:**
+```json
+{
+  "institution": "University of Arizona",
+  "academicYear": "2026-27",
+  "components": [
+    { "name": "Pell Grant", "amount": 7395, "category": "grant", "renewable": true },
+    { "name": "UA Excellence Scholarship", "amount": 6000, "category": "scholarship", "renewable": true },
+    { "name": "Federal Work-Study", "amount": 2500, "category": "work-study" },
+    { "name": "Federal Subsidized Loan", "amount": 3500, "category": "loan", "mustRepay": true },
+    { "name": "Federal Unsubsidized Loan", "amount": 2000, "category": "loan", "mustRepay": true }
+  ],
+  "summary": {
+    "freeMoneyTotal": 13395,
+    "loanTotal": 5500,
+    "workStudyTotal": 2500,
+    "outOfPocket": 8105
+  }
+}
+```
+
+---
+
+### `GET /api/counselor/caseload`
+Returns counselor's student list with milestone status. Requires `counselor` role.
+
+**Response:**
+```json
+{
+  "students": [
+    {
+      "id": "uuid",
+      "displayName": "Maria G.",
+      "grade": 12,
+      "isFirstGen": true,
+      "milestones": {
+        "collegeList": "complete",
+        "fafsa": "in-progress",
+        "applications": "not-started",
+        "scholarships": "complete"
+      },
+      "urgencyScore": 82,
+      "flaggedReason": "3 application deadlines in next 14 days, FAFSA incomplete"
+    }
+  ],
+  "cohortStats": {
+    "fafsaCompletionRate": 0.61,
+    "avgScholarshipsApplied": 4.2,
+    "avgCollegesOnList": 6.8
+  }
+}
+```
+
+---
+
+## 11. Success Criteria
 
 ### MVP Success Definition
-
-The MVP is complete when a user can sign up, build a link page with a chosen theme, share their public URL, and view click analytics — all validated by passing E2E tests covering every user journey.
+A successful MVP demonstrates that the platform can meaningfully improve college planning outcomes for first-gen students in a controlled pilot of at least one school or TRIO program.
 
 ### Functional Requirements
-
-- ✅ User can sign up with email/password and choose a unique slug
-- ✅ User can sign in with Google OAuth
-- ✅ User can edit display name, bio, and avatar URL
-- ✅ User can add, remove, and reorder links via drag-and-drop
-- ✅ User can add section headers and dividers
-- ✅ User can select from 4 themes with instant live preview
-- ✅ Editor shows side-by-side layout on desktop with toggle options
-- ✅ Editor shows toggle mode on mobile
-- ✅ Saving profile persists all changes to database
-- ✅ Public page at `/<slug>` renders with selected theme (SSR)
-- ✅ Public page includes correct OG meta tags
-- ✅ Clicking a link on the public page tracks the click
-- ✅ Analytics dashboard shows click counts per link
-- ✅ Analytics dashboard shows time-series chart (7d/30d/90d)
-- ✅ Marketing landing page exists at `/`
-- ✅ All protected routes redirect to login when unauthenticated
-- ✅ Rate limiting prevents abuse on API endpoints
+- ✅ Student can complete onboarding and receive a personalized college list within 5 minutes
+- ✅ Financial aid comparison shows net price (not sticker) for all colleges on student's list
+- ✅ Scholarship agent surfaces at least 5 matched scholarships per student with eligibility explanation
+- ✅ Application checklist captures all deadlines for all schools + FAFSA + CSS Profile
+- ✅ FAFSA walkthrough completes end-to-end with a test student profile
+- ✅ Counselor can view caseload milestone status and identify high-urgency students
+- ✅ Agent notifications are delivered via email within 30 minutes of trigger event
+- ✅ Award letter upload correctly categorizes grants vs. loans in >90% of test cases
+- ✅ Platform loads under 2 seconds on mobile (LCP < 2.5s)
+- ✅ All forms pass accessibility audit (WCAG 2.1 AA)
 
 ### Quality Indicators
-
-- TypeScript strict mode with zero type errors
-- Biome passes with zero lint/format warnings
-- Vitest unit test coverage on all utility functions and API logic
-- agent-browser E2E tests pass for every user journey
-- Lighthouse performance score ≥ 90 on public pages
-- All pages responsive from 320px to 1920px
+- Zero data leakage between student accounts (security audit required before pilot launch)
+- College data accuracy within 5% of published net price calculator values
+- Agent explanations rated "clear" or "very clear" by >80% of first-gen test users
+- Counselor dashboard loads caseload of 500 students in <3 seconds
 
 ### User Experience Goals
-
-- Signup-to-published page in under 2 minutes
-- Theme switching feels instant (no loading states)
-- Drag-and-drop reordering is smooth and intuitive
-- Public page loads in under 1 second (server-rendered)
+- First-gen student with no prior knowledge of college process can complete onboarding unaided
+- Counselor can triage their full caseload in under 10 minutes
+- No feature requires prior knowledge of financial aid or admissions terminology
+- Platform works on a $200 Android phone on a school WiFi connection
 
 ---
 
-## 13. Implementation Phases
+## 12. Implementation Phases
 
-### Phase 1: Profile Editor + Live Preview
-
-**Goal:** Users can sign up, log in, and build their link page with a live preview.
+### Phase 1: Foundation + College Discovery (Weeks 1–6)
+**Goal:** Working student onboarding, college database, and Discovery Agent with counselor dashboard skeleton.
 
 **Deliverables:**
-- ✅ Project scaffolding (Next.js + Tailwind + shadcn/ui + Biome + Vitest)
-- ✅ Neon database setup + Drizzle schema + migrations
-- ✅ Neon Auth integration (email/password + Google OAuth)
-- ✅ Signup page with slug selection and real-time availability check
-- ✅ Login page (email/password + Google OAuth)
-- ✅ Auth middleware protecting dashboard routes
-- ✅ Profile editor form (name, bio, avatar URL)
-- ✅ Link management (add, remove, reorder with dnd-kit)
-- ✅ Header and divider support
-- ✅ Live preview panel (default "Minimal" theme)
-- ✅ Side-by-side layout (desktop) with editor-only/preview-only toggles
-- ✅ Toggle mode (mobile)
-- ✅ Explicit save button with toast feedback
-- ✅ Unit tests for validation logic, API handlers
-- ✅ E2E tests: signup flow, login flow, profile editing, link CRUD, drag-and-drop reorder
+- ✅ Database schema: students, profiles, college_list, agent_actions, counselor_caseload
+- ✅ Authentication: email/password + Google OAuth, role separation (student/counselor)
+- ✅ Student onboarding flow: academic profile, interests, financial situation, first-gen flag
+- ✅ IPEDS/Scorecard integration: college search and detailed data
+- ✅ College Discovery Agent: scoring engine, tier classification, plain-language explanations
+- ✅ Student dashboard: college list view, agent action cards
+- ✅ Counselor dashboard skeleton: student list with basic milestone tracking
 
-**Validation:**
-- User can sign up, add 5 links + 1 header + 1 divider, reorder them, save, refresh, and see persisted data
-- Preview updates in real-time without saving
-- All E2E tests pass via agent-browser
+**Validation:** Discovery Agent returns a college list within 10 seconds of profile completion. Counselor can see their students' college lists.
 
 ---
 
-### Phase 2: Theme System
-
-**Goal:** Users can choose from 4 distinct, layout-varying themes with instant preview.
+### Phase 2: Financial Aid + Scholarships (Weeks 5–10)
+**Goal:** Net price modeling, award letter parsing, scholarship matching engine.
 
 **Deliverables:**
-- ✅ 4 theme components: Minimal, Dark, Colorful, Professional
-- ✅ Each theme has its own layout structure and visual style
-- ✅ Theme picker UI with thumbnail previews
-- ✅ Instant theme switching in the live preview
-- ✅ Theme selection persisted to database
-- ✅ All themes responsive (320px – 1920px)
-- ✅ Smooth CSS transitions between themes
-- ✅ Unit tests for theme rendering logic
-- ✅ E2E tests: theme selection, preview updates, persistence after save and reload
+- ✅ Financial Aid Agent: net price by income bracket, four-year cost model, debt/earnings projection
+- ✅ Award letter upload + Claude-powered parsing (grant/loan/work-study categorization)
+- ✅ Plain-language award letter decoder UI
+- ✅ Scholarship database integration (Fastweb-style data or equivalent open dataset)
+- ✅ Scholarship Matching Agent: profile-based matching, deadline tracking, notification queue
+- ✅ Side-by-side financial comparison view across all colleges on list
+- ✅ Email notification system for scholarship deadlines
 
-**Validation:**
-- Switching between all 4 themes updates the preview instantly
-- Theme persists after save → reload
-- Each theme looks correct and distinct on mobile and desktop
-- All E2E tests pass via agent-browser
+**Validation:** Award letter parsing correctly categorizes 90%+ of components in a test set of 50 real award letters. Scholarship agent surfaces >5 matches for 80%+ of test student profiles.
 
 ---
 
-### Phase 3: Public URLs + SEO
-
-**Goal:** Each user gets a public page at `/<slug>` with proper SEO and social sharing support.
+### Phase 3: Application Management + FAFSA Guidance (Weeks 9–14)
+**Goal:** Unified application checklist, FAFSA walkthrough, counselor milestone tracking.
 
 **Deliverables:**
-- ✅ Dynamic `[slug]` route with server-side rendering
-- ✅ Public page renders profile + links with the selected theme
-- ✅ OG meta tags (`og:title`, `og:description`, `og:image`, `og:url`, `twitter:card`)
-- ✅ 404 handling for non-existent slugs
-- ✅ Reserved slug protection (prevent registration of system routes)
-- ✅ Marketing landing page at `/` (hero, features, CTAs)
-- ✅ Slug change in user settings
-- ✅ Canonical URL in `<head>`
-- ✅ Unit tests for slug validation, OG tag generation
-- ✅ E2E tests: public page rendering, correct theme display, OG tag verification, 404 page, landing page navigation, slug change flow
+- ✅ Application Management Agent: deadline aggregation across all schools, FAFSA, CSS Profile
+- ✅ Conflict detection: surfaces hidden earlier deadlines (institutional scholarships, priority FAFSA)
+- ✅ FAFSA step-by-step walkthrough with document checklist
+- ✅ Task completion UI with urgency ordering
+- ✅ Counselor dashboard: FAFSA completion rate, flagged students, urgency scoring
+- ✅ Student-to-counselor connection flow (students add their counselor's school code)
+- ✅ Counselor outcome report (end-of-year cohort stats)
 
-**Validation:**
-- Visiting `/<slug>` renders the correct profile with the correct theme
-- Sharing the URL on social media shows correct preview (OG tags)
-- Non-existent slugs show a 404 page
-- Landing page loads and CTAs navigate correctly
-- All E2E tests pass via agent-browser
+**Validation:** Test counselor with 50 mock students can identify top-5 urgency students in <2 minutes. FAFSA walkthrough tested with 10 first-gen students (moderated usability test).
 
 ---
 
-### Phase 4: Click Analytics
-
-**Goal:** Track clicks on public page links and display analytics in a dashboard.
+### Phase 4: Pilot Launch + Iteration (Weeks 13–20)
+**Goal:** Controlled pilot with 1–3 schools or TRIO programs; collect outcome data.
 
 **Deliverables:**
-- ✅ Click tracking endpoint (`POST /api/click`)
-- ✅ Click recording on public page link clicks (via `sendBeacon` or fetch)
-- ✅ Rate limiting on click endpoint (60/min per IP, 10-sec dedup)
-- ✅ Analytics API endpoint with period filtering
-- ✅ Analytics dashboard page (`/analytics`)
-- ✅ Summary cards (total clicks, this week, active links)
-- ✅ Top links table with click counts
-- ✅ Time-series line chart (7d / 30d / 90d toggle)
-- ✅ Per-link daily breakdown (expandable rows)
-- ✅ Unit tests for analytics aggregation queries, rate limiting logic
-- ✅ E2E tests: click tracking fires on public page, analytics dashboard shows correct data, period toggle works, chart renders
+- ✅ Onboarding for pilot partner counselors + school setup flow
+- ✅ Data export for counselors (CSV of caseload milestones)
+- ✅ Bug fixes and performance optimization from pilot feedback
+- ✅ Privacy review and security audit before launch
+- ✅ Analytics instrumentation (Posthog or similar) for funnel analysis
+- ✅ Feedback collection (in-app NPS, post-session survey)
 
-**Validation:**
-- Clicking links on a public page increments the count
-- Analytics dashboard reflects clicks accurately
-- Time-series chart displays correctly for all period options
-- Rate limiting prevents click spam
-- All E2E tests pass via agent-browser
+**Validation:** Pilot schools show measurable improvement in FAFSA completion rate vs. control. Student NPS > 40. Counselor NPS > 50. No P0 security issues identified in audit.
 
 ---
 
-## 14. Future Considerations
+## 13. Future Considerations
 
-### Post-MVP Enhancements
-- **File upload for avatars** — Use Vercel Blob or Cloudflare R2 for image storage
-- **Custom domains** — Allow users to point their own domain to their page
-- **Embed support** — YouTube, Spotify, SoundCloud embeds inline in the link list
-- **Auto-save with draft/publish** — Auto-save changes as draft, explicit publish to go live
-- **Link scheduling** — Show/hide links based on date ranges
-- **More themes** — Community-contributed themes, custom color overrides
+### Phase 2 Post-MVP
+- **Degree Planning Agent:** Credit tracking, major-change impact modeling, transfer credit pre-mapping, excess credit alerts
+- **Native mobile app:** Push notifications are more effective than email for the target demographic
+- **SSO / LMS integration:** Clever and ClassLink district authentication for frictionless school adoption
+- **Adult learner re-enrollment flow:** Dedicated onboarding for the 41.9M "some college, no degree" population; Credit for Prior Learning (CPL) awareness module
+- **FERPA compliance + SOC 2:** Required for district contracts and four-year institution sales
 
-### Integration Opportunities
-- **Social login expansion** — GitHub, Twitter/X, Discord OAuth
-- **Analytics export** — CSV/JSON download of click data
-- **Webhook notifications** — Notify external services on click milestones
-- **API access** — Public API for programmatic profile management
+### Phase 3 Expansion
+- **Career Pipeline Agent:** Internship matching, career profile building, first-gen networking support
+- **Employer recruiting portal:** Deep student profiles sold to employers; replaces Handshake for the pre-graduation pipeline
+- **Community college advising product:** Degree mapping with 2-to-4 year transfer pathway optimization; 43% credit loss prevention
+- **Four-year institution B2B:** Enterprise license for retention and advising augmentation
 
-### Advanced Features
-- **Admin panel** — User management, content moderation, system stats
-- **A/B testing** — Test different link orders or themes for click optimization
-- **Rich analytics** — Referrer tracking, geographic data, device breakdown
-- **Custom CSS** — Per-user CSS overrides for advanced customization
-- **Team accounts** — Shared pages managed by multiple users
+### Platform Intelligence (Ongoing)
+- **Outcome data flywheel:** Track enrolled students' degree completion, transfer success, and earnings to improve recommendation models
+- **First-gen cohort benchmarking:** Internal benchmarks vs. national first-gen graduation rates; surface to institutional partners as a retention ROI story
+- **Predictive risk modeling:** Identify students at risk of stopping out before they do; surface to counselors for proactive intervention
+- **Multi-language support:** Spanish-language interface is a high priority given the 1.5M+ Hispanic/Latino first-gen population
 
 ---
 
-## 15. Risks & Mitigations
+## 14. Risks & Mitigations
 
-| Risk | Impact | Mitigation |
-|---|---|---|
-| **Neon Auth is relatively new** — Less community support and documentation compared to established auth solutions. | Medium | Neon Auth is built on Better Auth, which has extensive docs. Fall back to Better Auth docs when Neon-specific docs are sparse. Keep auth logic isolated so it can be swapped if needed. |
-| **Click tracking volume** — Popular pages could generate high write volume to the `click_events` table. | Medium | Use `navigator.sendBeacon` (non-blocking). Rate limit aggressively. Consider batching writes or a summary table for high-volume pages in a future phase. Neon's serverless auto-scaling helps absorb bursts. |
-| **Slug collisions with app routes** — User-chosen slugs could conflict with app routes like `/login` or `/api`. | High | Maintain a strict reserved-slugs list checked at signup. The `[slug]` catch-all route should be the lowest priority in Next.js routing (place it last). |
-| **Theme layout complexity** — 4 themes with different layouts is significantly more work than CSS-only themes. | Medium | Start with shared base components and have each theme compose them differently. Define a clear `ThemeProps` interface so all themes receive the same data. Build Minimal first as the reference, then diverge. |
-| **E2E test reliability** — Browser-based E2E tests can be flaky, especially with auth flows and drag-and-drop. | Medium | Use agent-browser's `wait` commands extensively. Isolate test data per run. For drag-and-drop, test the reorder API directly as a unit test and use E2E only for the happy path. |
+### Risk 1: Data Quality — College and Financial Aid Data
+**Risk:** IPEDS and Scorecard data is often lagging by 1–2 years; net price by income bracket data is self-reported and inconsistent across institutions.
+**Mitigation:** Layer in supplemental data sources (Common Data Set, institution websites). Flag data freshness in the UI. Build agent prompts to caveat estimates as "based on 2023–24 data" and recommend students verify with the net price calculator on each institution's website.
+
+### Risk 2: First-Gen User Trust
+**Risk:** First-gen students may distrust algorithmic recommendations, particularly around finances, if they don't understand the basis.
+**Mitigation:** Every recommendation surfaces a plain-language explanation. Users can expand to see the underlying data (acceptance rates, net price source, earnings data source). Build a "how we calculated this" modal for every financial estimate.
+
+### Risk 3: COPPA Compliance for Under-18 Users
+**Risk:** Students under 13 require verifiable parental consent; students 13–17 require parental awareness. School-based deployment (FERPA) provides an exception.
+**Mitigation:** For Phase 1 (direct B2C), require date-of-birth at signup and gate under-13 accounts. Implement parental consent flow for 13–17. For Phase 2 (school B2B), structure as a school-operated service under FERPA's school official exception.
+
+### Risk 4: Agent Accuracy and Hallucination
+**Risk:** Claude may generate inaccurate financial aid estimates or scholarship eligibility claims, leading to student decisions based on bad information.
+**Mitigation:** Ground agent outputs in structured data queries (not free-form generation) wherever possible. Use Claude only for natural language explanation of structured results, not for numerical calculations. Implement a human-review step for award letter parsing edge cases. Add prominent disclaimers that all estimates should be verified with the institution.
+
+### Risk 5: B2B Sales Cycle Length
+**Risk:** School district purchasing decisions are annual (July 1 fiscal year), involve multiple stakeholders, and can take 6–18 months. A B2B-dependent revenue model may not generate revenue quickly enough.
+**Mitigation:** Launch with a freemium B2C model that does not require district adoption. Build measurable outcome data (FAFSA completion rates, scholarships secured) from B2C pilots that can be used as evidence in B2B sales. Pursue Title I and TRIO programs that have discretionary budgets and faster procurement timelines.
 
 ---
 
-## 16. Appendix
+## 15. Appendix
 
-### Key Dependencies
+### Key Market Data Sources
+- National Center for Education Statistics (NCES) / IPEDS
+- Department of Education College Scorecard: `collegescorecard.ed.gov/data`
+- American School Counselor Association (ASCA) annual ratio data
+- National Student Clearinghouse Research Center
+- Complete College America
 
-| Package | Docs |
-|---|---|
-| Next.js | https://nextjs.org/docs |
-| Tailwind CSS | https://tailwindcss.com/docs |
-| shadcn/ui | https://ui.shadcn.com |
-| Drizzle ORM | https://orm.drizzle.team/docs |
-| Neon | https://neon.com/docs |
-| Neon Auth | https://neon.com/docs/auth/overview |
-| dnd-kit | https://dndkit.com |
-| Recharts | https://recharts.org |
-| Zod | https://zod.dev |
-| Biome | https://biomejs.dev |
-| Vitest | https://vitest.dev |
+### Competitive Benchmarks
+| Company | Revenue | Users | Key Metric |
+|---------|---------|-------|------------|
+| Naviance (PowerSchool) | ~$500M+ (PowerSchool total) | 10M students, 40% HS market | Dominant HS platform, aging UX |
+| EAB Navigate | ~$350M est. | 850+ institutions | 95% renewal, $278K/yr avg contract |
+| Handshake | ~$270M ($190M core + $80M AI) | 20M students | Every Fortune 500 |
+| Scoir | ~$20M est. | 2,200 schools | 40-50% YoY growth |
+| CollegeVine | undisclosed | 100+ institutions (B2B) | Pivoted to AI agents in 2024 |
 
-### Reference Implementations
+### Go-to-Market Priority States (Counselor Ratio Crisis)
+| State | Student:Counselor Ratio | Priority |
+|-------|------------------------|---------|
+| Arizona | 570:1 | Highest |
+| California | 464:1 | High |
+| Michigan | ~420:1 | High |
+| Texas | ~400:1 | High |
+| Minnesota | ~390:1 | Medium |
 
-- [LinkStack](https://linkstack.org/) — Full-featured self-hosted Linktree alternative (PHP/Laravel)
-- [LittleLink-Server](https://github.com/techno-tim/littlelink-server) — Lightweight Node.js alternative
-- [LibreLinks](https://github.com/urdadx/librelinks) — Open-source Next.js link-in-bio tool
-- [OpenBento](https://github.com/syntax-syndicate/openbento-linkedin-bio-builder) — Bento-grid style bio page builder
+### Repository Structure (Current)
+```
+college_nav/
+├── PRD.md                    # This document
+├── README.md                 # Technical setup
+├── src/                      # Application source
+├── drizzle/                  # Database migrations
+├── tests/                    # Unit + E2E tests
+└── package.json
+```
+
+### Related Documents
+- Market research: `compass_artifact_wf-ae684989-2d9a-4371-9b2a-2bf660b88c7f_text_markdown.md`

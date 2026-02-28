@@ -2,6 +2,11 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 export function middleware(request: NextRequest) {
+	// Dev bypass — set SKIP_AUTH=true in .env.local to skip session checks locally
+	if (process.env.SKIP_AUTH === "true") {
+		return NextResponse.next();
+	}
+
 	// Check for Neon Auth session cookie.
 	// The cookie name varies: __Secure-neon-auth.session_token on HTTPS,
 	// neon-auth.session_token on HTTP localhost

@@ -1,11 +1,14 @@
 import type { InferSelectModel } from "drizzle-orm";
 import type {
 	agentRuns,
+	awardLetters,
 	collegeListEntries,
 	colleges,
 	counselorProfiles,
 	counselorStudents,
+	scholarships,
 	studentProfiles,
+	studentScholarships,
 	userProfiles,
 } from "@/lib/db/schema";
 
@@ -18,6 +21,9 @@ export type CounselorStudent = InferSelectModel<typeof counselorStudents>;
 export type College = InferSelectModel<typeof colleges>;
 export type CollegeListEntry = InferSelectModel<typeof collegeListEntries>;
 export type AgentRun = InferSelectModel<typeof agentRuns>;
+export type Scholarship = InferSelectModel<typeof scholarships>;
+export type StudentScholarship = InferSelectModel<typeof studentScholarships>;
+export type AwardLetter = InferSelectModel<typeof awardLetters>;
 
 // --- Enum types (match pgEnum values) ---
 
@@ -84,6 +90,39 @@ export interface ScorecardCollege {
 	"latest.completion.completion_rate_4yr_150nt": number | null;
 	"latest.completion.completion_rate_less_than_4yr_150nt": number | null;
 	"latest.earnings.10_yrs_after_entry.median": number | null;
+	"latest.cost.attendance.academic_year": number | null;
+	"latest.cost.tuition.in_state": number | null;
+	"latest.cost.tuition.out_of_state": number | null;
+}
+
+// --- Financial aid types ---
+
+export interface AidComponent {
+	name: string;
+	amount: number;
+	category: "grant" | "scholarship" | "loan" | "work_study";
+	mustRepay: boolean;
+	renewable: boolean;
+}
+
+export interface FinancialAidSummary {
+	collegeId: string;
+	collegeName: string;
+	netPricePerYear: number | null;
+	costOfAttendance: number | null;
+	fourYearNetCost: number | null;
+	totalDebtEstimate: number | null;
+	monthlyPayment: number | null;
+	awardLetter: AwardLetter | null;
+}
+
+export interface ScholarshipMatch {
+	scholarship: Scholarship;
+	matchScore: number;
+	matchReasons: string[];
+	status: "matched" | "applied" | "awarded" | "rejected";
+	daysUntilDeadline: number | null;
+	notifiedAt: Date | null;
 }
 
 // --- Agent scoring types (intermediate, not persisted directly) ---

@@ -1,6 +1,7 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -126,6 +127,22 @@ export default function StudentDashboardPage() {
 		(userWithProfile?.studentProfile?.incomeBracket as IncomeBracket | null) ?? null;
 
 	return (
-		<CollegeList list={collegeList} incomeBracket={incomeBracket} onRefresh={fetchCollegeList} />
+		<div className="mx-auto max-w-5xl p-6">
+			<div className="mb-6 flex items-center justify-between rounded-lg border bg-card p-4">
+				<div>
+					<h2 className="font-semibold">Financial Aid & Scholarships</h2>
+					<p className="text-sm text-muted-foreground">
+						See net costs, parse award letters, and find scholarships you qualify for.
+					</p>
+				</div>
+				<Link
+					href="/student/financial-aid"
+					className="shrink-0 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+				>
+					Explore →
+				</Link>
+			</div>
+			<CollegeList list={collegeList} incomeBracket={incomeBracket} onRefresh={fetchCollegeList} />
+		</div>
 	);
 }

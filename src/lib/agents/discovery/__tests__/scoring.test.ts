@@ -26,6 +26,9 @@ const mockCollege: College = {
 	completionRate: 0.62,
 	medianEarnings10yr: 48000,
 	studentSize: 15000,
+	costOfAttendance: 32000,
+	tuitionInState: 11000,
+	tuitionOutOfState: 28000,
 	cachedAt: new Date(),
 };
 

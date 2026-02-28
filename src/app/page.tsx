@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
+	const devMode = process.env.SKIP_AUTH === "true";
 	return (
 		<div className="flex min-h-screen flex-col items-center justify-center px-4">
 			<div className="flex flex-col items-center gap-8 text-center max-w-2xl">
@@ -21,21 +22,38 @@ export default function Home() {
 					</p>
 				</div>
 
-				<div className="flex flex-col gap-3 w-full sm:flex-row sm:justify-center">
-					<Button asChild size="lg" className="w-full sm:w-auto">
-						<Link href="/signup">Get Started — It's Free</Link>
-					</Button>
-					<Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
-						<Link href="/signup?role=counselor">I'm a Counselor</Link>
-					</Button>
-				</div>
-
-				<p className="text-sm text-muted-foreground">
-					Already have an account?{" "}
-					<Link href="/login" className="text-primary underline-offset-4 hover:underline">
-						Sign in
-					</Link>
-				</p>
+				{devMode ? (
+					<div className="flex flex-col items-center gap-4 w-full">
+						<div className="rounded-lg border border-yellow-500/40 bg-yellow-500/10 px-4 py-3 text-sm w-full text-left">
+							<p className="font-medium text-yellow-700 dark:text-yellow-400">
+								Dev mode — auth skipped
+							</p>
+							<p className="text-yellow-600 dark:text-yellow-500 text-xs mt-0.5">
+								SKIP_AUTH=true · fixed user: dev@localhost
+							</p>
+						</div>
+						<Button asChild size="lg" className="w-full sm:w-auto">
+							<a href="/api/dev/setup">Enter App →</a>
+						</Button>
+					</div>
+				) : (
+					<>
+						<div className="flex flex-col gap-3 w-full sm:flex-row sm:justify-center">
+							<Button asChild size="lg" className="w-full sm:w-auto">
+								<Link href="/signup">Get Started — It's Free</Link>
+							</Button>
+							<Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
+								<Link href="/signup?role=counselor">I'm a Counselor</Link>
+							</Button>
+						</div>
+						<p className="text-sm text-muted-foreground">
+							Already have an account?{" "}
+							<Link href="/login" className="text-primary underline-offset-4 hover:underline">
+								Sign in
+							</Link>
+						</p>
+					</>
+				)}
 
 				{/* Feature highlights */}
 				<div className="grid grid-cols-1 gap-4 sm:grid-cols-3 mt-4 w-full text-left">

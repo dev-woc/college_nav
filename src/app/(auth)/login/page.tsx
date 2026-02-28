@@ -1,10 +1,12 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { GoogleButton } from "@/components/auth/google-button";
 import { LoginForm } from "@/components/auth/login-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
 export default function LoginPage() {
+	if (process.env.SKIP_AUTH === "true") redirect("/api/dev/setup");
 	return (
 		<Card>
 			<CardHeader className="text-center">

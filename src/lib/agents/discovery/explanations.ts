@@ -1,6 +1,13 @@
-import { anthropic } from "@/lib/ai/client";
+import { createGroq } from "@ai-sdk/groq";
+import { generateText } from "ai";
 import type { CollegeScore, IncomeBracket, StudentProfile } from "@/types";
 import { getNetPrice } from "./scoring";
+
+// To switch back to Anthropic, replace the provider line with:
+//   import { anthropic } from "@/lib/ai/client";
+//   const model = anthropic("claude-sonnet-4-6");
+const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
+const model = groq("llama-3.3-70b-versatile");
 
 function formatNetPrice(score: CollegeScore, bracket: IncomeBracket): string {
 	const price = getNetPrice(score.college, bracket);
@@ -8,7 +15,7 @@ function formatNetPrice(score: CollegeScore, bracket: IncomeBracket): string {
 }
 
 /**
- * Generate plain-language explanations for a batch of scored colleges via Claude.
+ * Generate plain-language explanations for a batch of scored colleges via an LLM.
  * Returns a Map<batchIndex, explanation>.
  * Batch size should be ≤ 10 to keep prompts manageable.
  */
@@ -63,13 +70,7 @@ Format your response exactly as:
 2. [explanation for college 2]
 (continue for all colleges)`;
 
-	const message = await anthropic.messages.create({
-		model: "claude-sonnet-4-6",
-		max_tokens: 2048,
-		messages: [{ role: "user", content: prompt }],
-	});
-
-	const text = message.content[0].type === "text" ? message.content[0].text : "";
+	const { text } = await generateText({ model, prompt, maxOutputTokens: 2048 });
 
 	// Parse numbered list into a map keyed by 0-based index
 	const result = new Map<number, string>();

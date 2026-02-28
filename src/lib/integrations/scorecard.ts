@@ -27,6 +27,10 @@ const FIELDS = [
 	"latest.completion.completion_rate_4yr_150nt",
 	"latest.completion.completion_rate_less_than_4yr_150nt",
 	"latest.earnings.10_yrs_after_entry.median",
+	// Cost of attendance and tuition breakdown
+	"latest.cost.attendance.academic_year",
+	"latest.cost.tuition.in_state",
+	"latest.cost.tuition.out_of_state",
 ].join(",");
 
 export interface ScorecardSearchParams {
@@ -108,5 +112,8 @@ export function scorecardToDbValues(sc: ScorecardCollege) {
 			null,
 		medianEarnings10yr: sc["latest.earnings.10_yrs_after_entry.median"] ?? null,
 		studentSize: sc["latest.student.size"] ?? null,
+		costOfAttendance: sc["latest.cost.attendance.academic_year"] ?? null,
+		tuitionInState: sc["latest.cost.tuition.in_state"] ?? null,
+		tuitionOutOfState: sc["latest.cost.tuition.out_of_state"] ?? null,
 	};
 }

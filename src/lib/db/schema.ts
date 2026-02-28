@@ -41,6 +41,13 @@ export const applicationStatusEnum = pgEnum("application_status", [
 	"enrolled",
 ]);
 
+export const scholarshipStatusEnum = pgEnum("scholarship_status", [
+	"matched",
+	"applied",
+	"awarded",
+	"rejected",
+]);
+
 // --- Tables ---
 
 // Universal profile for all users (students, counselors, admins)
@@ -145,6 +152,9 @@ export const colleges = pgTable(
 		completionRate: real("completion_rate"), // 0.0-1.0
 		medianEarnings10yr: integer("median_earnings_10yr"),
 		studentSize: integer("student_size"),
+		costOfAttendance: integer("cost_of_attendance"),
+		tuitionInState: integer("tuition_in_state"),
+		tuitionOutOfState: integer("tuition_out_of_state"),
 		cachedAt: timestamp("cached_at", { withTimezone: true }).defaultNow().notNull(),
 	},
 	(table) => [
@@ -205,6 +215,89 @@ export const agentRuns = pgTable(
 	],
 );
 
+// Scholarship database (seeded nationally curated list)
+export const scholarships = pgTable(
+	"scholarships",
+	{
+		id: uuid("id").defaultRandom().primaryKey(),
+		name: text("name").notNull(),
+		description: text("description").notNull().default(""),
+		amount: integer("amount"), // null = varies
+		amountMin: integer("amount_min"),
+		amountMax: integer("amount_max"),
+		deadlineText: text("deadline_text").notNull().default(""), // e.g. "March 1 annually"
+		deadlineMonth: integer("deadline_month"), // 1-12, null = rolling
+		deadlineDay: integer("deadline_day"),
+		minGpa: real("min_gpa"),
+		requiresFirstGen: boolean("requires_first_gen").notNull().default(false),
+		requiresEssay: boolean("requires_essay").notNull().default(false),
+		eligibleStates: text("eligible_states"), // JSON.stringify(string[]) or null = national
+		eligibleMajors: text("eligible_majors"), // JSON.stringify(string[]) or null = any
+		demographicTags: text("demographic_tags"), // JSON.stringify(string[]) e.g. ["hispanic","black"]
+		applicationUrl: text("application_url").notNull().default(""),
+		renewable: boolean("renewable").notNull().default(false),
+		source: text("source").notNull().default("curated"),
+		isActive: boolean("is_active").notNull().default(true),
+		createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+	},
+	(table) => [
+		index("idx_scholarships_deadline_month").on(table.deadlineMonth),
+		index("idx_scholarships_first_gen").on(table.requiresFirstGen),
+	],
+);
+
+// Student's matched scholarships (from Scholarship Matching Agent)
+export const studentScholarships = pgTable(
+	"student_scholarships",
+	{
+		id: uuid("id").defaultRandom().primaryKey(),
+		studentProfileId: uuid("student_profile_id")
+			.notNull()
+			.references(() => studentProfiles.id, { onDelete: "cascade" }),
+		scholarshipId: uuid("scholarship_id")
+			.notNull()
+			.references(() => scholarships.id, { onDelete: "cascade" }),
+		matchScore: real("match_score").notNull(),
+		matchReasons: text("match_reasons").notNull().default("[]"), // JSON.stringify(string[])
+		status: scholarshipStatusEnum("status").notNull().default("matched"),
+		agentRunId: uuid("agent_run_id"),
+		notifiedAt: timestamp("notified_at", { withTimezone: true }),
+		createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+		updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+	},
+	(table) => [
+		uniqueIndex("idx_student_scholarships_pair").on(table.studentProfileId, table.scholarshipId),
+		index("idx_student_scholarships_student").on(table.studentProfileId),
+	],
+);
+
+// Parsed award letters (uploaded text → AI-categorized components)
+export const awardLetters = pgTable(
+	"award_letters",
+	{
+		id: uuid("id").defaultRandom().primaryKey(),
+		studentProfileId: uuid("student_profile_id")
+			.notNull()
+			.references(() => studentProfiles.id, { onDelete: "cascade" }),
+		collegeId: uuid("college_id").references(() => colleges.id, { onDelete: "set null" }),
+		collegeName: text("college_name").notNull().default(""),
+		academicYear: text("academic_year").notNull().default(""),
+		rawText: text("raw_text").notNull().default(""),
+		components: text("components").notNull().default("[]"), // JSON.stringify(AidComponent[])
+		freeMoneyTotal: integer("free_money_total").notNull().default(0),
+		loanTotal: integer("loan_total").notNull().default(0),
+		workStudyTotal: integer("work_study_total").notNull().default(0),
+		outOfPocket: integer("out_of_pocket").notNull().default(0),
+		agentRunId: uuid("agent_run_id"),
+		createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+		updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+	},
+	(table) => [
+		index("idx_award_letters_student").on(table.studentProfileId),
+		index("idx_award_letters_college").on(table.collegeId),
+	],
+);
+
 // --- Relations ---
 
 export const userProfilesRelations = relations(userProfiles, ({ one }) => ({
@@ -226,6 +319,8 @@ export const studentProfilesRelations = relations(studentProfiles, ({ one, many 
 	collegeListEntries: many(collegeListEntries),
 	agentRuns: many(agentRuns),
 	counselorStudents: many(counselorStudents),
+	studentScholarships: many(studentScholarships),
+	awardLetters: many(awardLetters),
 }));
 
 export const counselorProfilesRelations = relations(counselorProfiles, ({ one, many }) => ({
@@ -249,6 +344,7 @@ export const counselorStudentsRelations = relations(counselorStudents, ({ one })
 
 export const collegesRelations = relations(colleges, ({ many }) => ({
 	listEntries: many(collegeListEntries),
+	awardLetters: many(awardLetters),
 }));
 
 export const collegeListEntriesRelations = relations(collegeListEntries, ({ one }) => ({
@@ -266,5 +362,31 @@ export const agentRunsRelations = relations(agentRuns, ({ one }) => ({
 	student: one(studentProfiles, {
 		fields: [agentRuns.studentProfileId],
 		references: [studentProfiles.id],
+	}),
+}));
+
+export const scholarshipsRelations = relations(scholarships, ({ many }) => ({
+	studentScholarships: many(studentScholarships),
+}));
+
+export const studentScholarshipsRelations = relations(studentScholarships, ({ one }) => ({
+	student: one(studentProfiles, {
+		fields: [studentScholarships.studentProfileId],
+		references: [studentProfiles.id],
+	}),
+	scholarship: one(scholarships, {
+		fields: [studentScholarships.scholarshipId],
+		references: [scholarships.id],
+	}),
+}));
+
+export const awardLettersRelations = relations(awardLetters, ({ one }) => ({
+	student: one(studentProfiles, {
+		fields: [awardLetters.studentProfileId],
+		references: [studentProfiles.id],
+	}),
+	college: one(colleges, {
+		fields: [awardLetters.collegeId],
+		references: [colleges.id],
 	}),
 }));
