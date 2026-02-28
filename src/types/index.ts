@@ -1,11 +1,13 @@
 import type { InferSelectModel } from "drizzle-orm";
 import type {
 	agentRuns,
+	applicationTasks,
 	awardLetters,
 	collegeListEntries,
 	colleges,
 	counselorProfiles,
 	counselorStudents,
+	fafsaProgress,
 	scholarships,
 	studentProfiles,
 	studentScholarships,
@@ -24,6 +26,8 @@ export type AgentRun = InferSelectModel<typeof agentRuns>;
 export type Scholarship = InferSelectModel<typeof scholarships>;
 export type StudentScholarship = InferSelectModel<typeof studentScholarships>;
 export type AwardLetter = InferSelectModel<typeof awardLetters>;
+export type ApplicationTask = InferSelectModel<typeof applicationTasks>;
+export type FafsaProgress = InferSelectModel<typeof fafsaProgress>;
 
 // --- Enum types (match pgEnum values) ---
 
@@ -123,6 +127,52 @@ export interface ScholarshipMatch {
 	status: "matched" | "applied" | "awarded" | "rejected";
 	daysUntilDeadline: number | null;
 	notifiedAt: Date | null;
+}
+
+export interface ApplicationChecklist {
+	tasks: ApplicationTask[];
+	conflicts: ApplicationTask[];
+	totalTasks: number;
+	completedTasks: number;
+	nextDeadline: Date | string | null;
+}
+
+export interface FafsaStepWithProgress {
+	step: number;
+	title: string;
+	description: string;
+	documents: string[];
+	tips: string[];
+	url?: string;
+	isCompleted: boolean;
+}
+
+export interface StudentMilestoneStatus {
+	id: string;
+	displayName: string;
+	email: string;
+	gradeLevel: number | null;
+	isFirstGen: boolean;
+	urgencyScore: number;
+	flaggedReason: string;
+	milestones: {
+		onboarding: "complete" | "not-started";
+		collegeList: "complete" | "not-started";
+		financialAid: "complete" | "not-started";
+		scholarships: "complete" | "not-started";
+		fafsa: "not-started" | "in-progress" | "complete";
+		applications: "not-started" | "in-progress" | "complete";
+		lastAgentRun: Date | string | null;
+	};
+}
+
+export interface CohortStats {
+	totalStudents: number;
+	fafsaCompletionRate: number;
+	avgScholarshipsMatched: number;
+	avgCollegesOnList: number;
+	studentsWithApplicationTasks: number;
+	highUrgencyCount: number;
 }
 
 // --- Agent scoring types (intermediate, not persisted directly) ---

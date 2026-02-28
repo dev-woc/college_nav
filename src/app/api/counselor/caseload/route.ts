@@ -1,14 +1,18 @@
 export const dynamic = "force-dynamic";
 
-import { eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
+import { buildFlaggedReason, computeUrgencyScore } from "@/lib/agents/applications/urgency";
 import { auth } from "@/lib/auth/server";
 import { db } from "@/lib/db";
 import {
 	agentRuns,
+	applicationTasks,
 	collegeListEntries,
 	counselorProfiles,
 	counselorStudents,
+	fafsaProgress,
+	studentScholarships,
 	userProfiles,
 } from "@/lib/db/schema";
 import { apiRateLimiter } from "@/lib/rate-limit";
@@ -73,22 +77,86 @@ export async function GET(request: NextRequest) {
 				orderBy: (r, { desc }) => [desc(r.startedAt)],
 			});
 
+			// FAFSA progress
+			const fafsa = await db.query.fafsaProgress.findFirst({
+				where: eq(fafsaProgress.studentProfileId, sp.id),
+				columns: { currentStep: true },
+			});
+
+			// Scholarship matches
+			const scholarshipMatches = await db.query.studentScholarships.findMany({
+				where: eq(studentScholarships.studentProfileId, sp.id),
+				columns: { id: true },
+			});
+
+			// Pending application tasks
+			const pendingTasks = await db.query.applicationTasks.findMany({
+				where: and(
+					eq(applicationTasks.studentProfileId, sp.id),
+					ne(applicationTasks.status, "completed"),
+				),
+				columns: { deadlineDate: true },
+			});
+
+			// Urgency
+			const urgencyInput = {
+				hasCollegeList: listEntries.length > 0,
+				hasFinancialAidRun: false,
+				hasScholarshipMatches: scholarshipMatches.length > 0,
+				fafsaCurrentStep: fafsa?.currentStep ?? 0,
+				pendingTasks: pendingTasks.map((t) => ({
+					deadlineDate: t.deadlineDate,
+				})),
+				gradeLevel: sp.gradeLevel,
+			};
+			const urgencyScore = computeUrgencyScore(urgencyInput);
+			const flaggedReason = buildFlaggedReason(urgencyInput);
+
+			const fafsaStatus =
+				(fafsa?.currentStep ?? 0) >= 12
+					? "complete"
+					: (fafsa?.currentStep ?? 0) > 0
+						? "in-progress"
+						: "not-started";
+			const hasAppTasks = pendingTasks.length > 0;
+
 			return {
 				id: sp.id,
 				displayName: up?.displayName ?? "Unknown",
+				email: up?.email ?? "",
 				gradeLevel: sp.gradeLevel,
 				isFirstGen: sp.isFirstGen,
+				urgencyScore,
+				flaggedReason,
 				milestones: {
 					onboarding: up?.onboardingCompleted ? "complete" : "not-started",
 					collegeList: listEntries.length > 0 ? "complete" : "not-started",
+					financialAid: "not-started" as const,
+					scholarships: scholarshipMatches.length > 0 ? "complete" : "not-started",
+					fafsa: fafsaStatus,
+					applications: hasAppTasks ? "in-progress" : "not-started",
 					lastAgentRun: latestRun?.completedAt ?? null,
 				},
 			};
 		}),
 	);
 
+	const cohortStats = {
+		totalStudents: studentSummaries.length,
+		fafsaCompletionRate:
+			studentSummaries.filter((s) => s.milestones.fafsa === "complete").length /
+			Math.max(1, studentSummaries.length),
+		avgScholarshipsMatched: 0,
+		avgCollegesOnList: 0,
+		studentsWithApplicationTasks: studentSummaries.filter(
+			(s) => s.milestones.applications !== "not-started",
+		).length,
+		highUrgencyCount: studentSummaries.filter((s) => s.urgencyScore >= 60).length,
+	};
+
 	return NextResponse.json({
 		students: studentSummaries,
+		cohortStats,
 		total: studentSummaries.length,
 	});
 }

@@ -48,6 +48,22 @@ export const scholarshipStatusEnum = pgEnum("scholarship_status", [
 	"rejected",
 ]);
 
+export const taskTypeEnum = pgEnum("task_type", [
+	"common_app",
+	"supplement",
+	"fafsa",
+	"css_profile",
+	"scholarship_app",
+	"institutional_app",
+]);
+
+export const taskStatusEnum = pgEnum("task_status", [
+	"pending",
+	"in_progress",
+	"completed",
+	"skipped",
+]);
+
 // --- Tables ---
 
 // Universal profile for all users (students, counselors, admins)
@@ -108,9 +124,13 @@ export const counselorProfiles = pgTable(
 		schoolName: text("school_name").notNull().default(""),
 		district: text("district").notNull().default(""),
 		stateCode: text("state_code").notNull().default(""),
+		schoolCode: text("school_code").notNull().default(""),
 		createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 	},
-	(table) => [index("idx_counselor_profiles_user_profile_id").on(table.userProfileId)],
+	(table) => [
+		index("idx_counselor_profiles_user_profile_id").on(table.userProfileId),
+		uniqueIndex("idx_counselor_profiles_school_code").on(table.schoolCode),
+	],
 );
 
 // Junction: counselor manages student
@@ -298,6 +318,57 @@ export const awardLetters = pgTable(
 	],
 );
 
+// Application tasks (from Application Management Agent)
+export const applicationTasks = pgTable(
+	"application_tasks",
+	{
+		id: uuid("id").defaultRandom().primaryKey(),
+		studentProfileId: uuid("student_profile_id")
+			.notNull()
+			.references(() => studentProfiles.id, { onDelete: "cascade" }),
+		collegeId: uuid("college_id").references(() => colleges.id, {
+			onDelete: "cascade",
+		}),
+		collegeName: text("college_name").notNull().default(""),
+		taskType: taskTypeEnum("task_type").notNull(),
+		title: text("title").notNull(),
+		description: text("description").notNull().default(""),
+		deadlineDate: timestamp("deadline_date", { withTimezone: true }),
+		deadlineLabel: text("deadline_label").notNull().default(""),
+		status: taskStatusEnum("task_status").notNull().default("pending"),
+		isConflict: boolean("is_conflict").notNull().default(false),
+		conflictNote: text("conflict_note").notNull().default(""),
+		agentRunId: uuid("agent_run_id"),
+		completedAt: timestamp("completed_at", { withTimezone: true }),
+		createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+		updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+	},
+	(table) => [
+		index("idx_application_tasks_student").on(table.studentProfileId),
+		index("idx_application_tasks_college").on(table.collegeId),
+		index("idx_application_tasks_status").on(table.status),
+		index("idx_application_tasks_deadline").on(table.deadlineDate),
+	],
+);
+
+// FAFSA step-by-step progress tracking
+export const fafsaProgress = pgTable(
+	"fafsa_progress",
+	{
+		id: uuid("id").defaultRandom().primaryKey(),
+		studentProfileId: uuid("student_profile_id")
+			.notNull()
+			.unique()
+			.references(() => studentProfiles.id, { onDelete: "cascade" }),
+		completedSteps: text("completed_steps").notNull().default("[]"),
+		currentStep: integer("current_step").notNull().default(0),
+		notes: text("notes").notNull().default(""),
+		createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+		updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+	},
+	(table) => [uniqueIndex("idx_fafsa_progress_student").on(table.studentProfileId)],
+);
+
 // --- Relations ---
 
 export const userProfilesRelations = relations(userProfiles, ({ one }) => ({
@@ -321,6 +392,11 @@ export const studentProfilesRelations = relations(studentProfiles, ({ one, many 
 	counselorStudents: many(counselorStudents),
 	studentScholarships: many(studentScholarships),
 	awardLetters: many(awardLetters),
+	applicationTasks: many(applicationTasks),
+	fafsaProgress: one(fafsaProgress, {
+		fields: [studentProfiles.id],
+		references: [fafsaProgress.studentProfileId],
+	}),
 }));
 
 export const counselorProfilesRelations = relations(counselorProfiles, ({ one, many }) => ({
@@ -345,6 +421,7 @@ export const counselorStudentsRelations = relations(counselorStudents, ({ one })
 export const collegesRelations = relations(colleges, ({ many }) => ({
 	listEntries: many(collegeListEntries),
 	awardLetters: many(awardLetters),
+	applicationTasks: many(applicationTasks),
 }));
 
 export const collegeListEntriesRelations = relations(collegeListEntries, ({ one }) => ({
@@ -388,5 +465,23 @@ export const awardLettersRelations = relations(awardLetters, ({ one }) => ({
 	college: one(colleges, {
 		fields: [awardLetters.collegeId],
 		references: [colleges.id],
+	}),
+}));
+
+export const applicationTasksRelations = relations(applicationTasks, ({ one }) => ({
+	student: one(studentProfiles, {
+		fields: [applicationTasks.studentProfileId],
+		references: [studentProfiles.id],
+	}),
+	college: one(colleges, {
+		fields: [applicationTasks.collegeId],
+		references: [colleges.id],
+	}),
+}));
+
+export const fafsaProgressRelations = relations(fafsaProgress, ({ one }) => ({
+	student: one(studentProfiles, {
+		fields: [fafsaProgress.studentProfileId],
+		references: [studentProfiles.id],
 	}),
 }));

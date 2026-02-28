@@ -128,18 +128,26 @@ export default function StudentDashboardPage() {
 
 	return (
 		<div className="mx-auto max-w-5xl p-6">
-			<div className="mb-6 flex items-center justify-between rounded-lg border bg-card p-4">
-				<div>
-					<h2 className="font-semibold">Financial Aid & Scholarships</h2>
-					<p className="text-sm text-muted-foreground">
-						See net costs, parse award letters, and find scholarships you qualify for.
-					</p>
-				</div>
-				<Link
-					href="/student/financial-aid"
-					className="shrink-0 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-				>
-					Explore →
+			<div className="mb-6 grid gap-4 sm:grid-cols-3">
+				<Link href="/student/financial-aid">
+					<div className="rounded-xl border p-4 hover:bg-muted/50 transition-colors cursor-pointer">
+						<h3 className="font-semibold">Financial Aid &amp; Scholarships</h3>
+						<p className="text-sm text-muted-foreground mt-1">
+							See net costs and find scholarships
+						</p>
+					</div>
+				</Link>
+				<Link href="/student/applications">
+					<div className="rounded-xl border p-4 hover:bg-muted/50 transition-colors cursor-pointer">
+						<h3 className="font-semibold">My Applications</h3>
+						<p className="text-sm text-muted-foreground mt-1">Track deadlines and requirements</p>
+					</div>
+				</Link>
+				<Link href="/student/fafsa">
+					<div className="rounded-xl border p-4 hover:bg-muted/50 transition-colors cursor-pointer">
+						<h3 className="font-semibold">FAFSA Guide</h3>
+						<p className="text-sm text-muted-foreground mt-1">Step-by-step walkthrough</p>
+					</div>
 				</Link>
 			</div>
 			<CollegeList list={collegeList} incomeBracket={incomeBracket} onRefresh={fetchCollegeList} />

@@ -4,15 +4,32 @@ import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { CaseloadTable } from "@/components/counselor/caseload-table";
+import { CohortStats } from "@/components/counselor/cohort-stats";
+
+interface CohortStatsData {
+	totalStudents: number;
+	fafsaCompletionRate: number;
+	avgScholarshipsMatched: number;
+	avgCollegesOnList: number;
+	studentsWithApplicationTasks: number;
+	highUrgencyCount: number;
+}
 
 interface StudentSummary {
 	id: string;
 	displayName: string;
+	email: string;
 	gradeLevel: number | null;
 	isFirstGen: boolean;
+	urgencyScore: number;
+	flaggedReason: string;
 	milestones: {
 		onboarding: "complete" | "not-started";
 		collegeList: "complete" | "not-started";
+		financialAid: "complete" | "not-started";
+		scholarships: "complete" | "not-started";
+		fafsa: "not-started" | "in-progress" | "complete";
+		applications: "not-started" | "in-progress" | "complete";
 		lastAgentRun: Date | string | null;
 	};
 }
@@ -20,6 +37,8 @@ interface StudentSummary {
 export default function CounselorDashboardPage() {
 	const router = useRouter();
 	const [students, setStudents] = useState<StudentSummary[]>([]);
+	const [cohortStats, setCohortStats] = useState<CohortStatsData | null>(null);
+	const [sortByUrgency, setSortByUrgency] = useState(true);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
@@ -51,6 +70,7 @@ export default function CounselorDashboardPage() {
 			}
 			const data = await caseloadRes.json();
 			setStudents(data.students ?? []);
+			setCohortStats(data.cohortStats ?? null);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "Failed to load caseload");
 		} finally {
@@ -78,6 +98,10 @@ export default function CounselorDashboardPage() {
 		);
 	}
 
+	const sortedStudents = sortByUrgency
+		? [...students].sort((a, b) => b.urgencyScore - a.urgencyScore)
+		: students;
+
 	return (
 		<div className="space-y-6">
 			<div>
@@ -86,7 +110,18 @@ export default function CounselorDashboardPage() {
 					{students.length} student{students.length !== 1 ? "s" : ""} in your caseload
 				</p>
 			</div>
-			<CaseloadTable students={students} />
+			{cohortStats && <CohortStats stats={cohortStats} />}
+			<div className="flex items-center justify-between">
+				<h2 className="text-lg font-semibold">Your Students</h2>
+				<button
+					type="button"
+					onClick={() => setSortByUrgency((s) => !s)}
+					className="text-sm text-muted-foreground underline"
+				>
+					{sortByUrgency ? "Sorted by urgency \u2193" : "Sort by urgency"}
+				</button>
+			</div>
+			<CaseloadTable students={sortedStudents} />
 		</div>
 	);
 }
