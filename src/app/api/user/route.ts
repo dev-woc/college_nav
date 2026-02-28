@@ -103,11 +103,13 @@ export async function POST(request: NextRequest) {
 
 	// Create role-specific sub-profile
 	if (result.data.role === "counselor") {
+		// schoolCode = slug (already unique); students use this to connect to their counselor
 		await db.insert(counselorProfiles).values({
 			userProfileId: userProfile.id,
 			schoolName: result.data.schoolName ?? "",
 			district: result.data.district ?? "",
 			stateCode: result.data.stateCode ?? "",
+			schoolCode: result.data.slug,
 		});
 	}
 

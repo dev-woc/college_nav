@@ -38,6 +38,7 @@ export default function CounselorDashboardPage() {
 	const router = useRouter();
 	const [students, setStudents] = useState<StudentSummary[]>([]);
 	const [cohortStats, setCohortStats] = useState<CohortStatsData | null>(null);
+	const [schoolCode, setSchoolCode] = useState<string | null>(null);
 	const [sortByUrgency, setSortByUrgency] = useState(true);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -62,6 +63,8 @@ export default function CounselorDashboardPage() {
 				router.push("/student/dashboard");
 				return;
 			}
+
+			setSchoolCode(userData.counselorProfile?.schoolCode ?? null);
 
 			// Fetch caseload
 			const caseloadRes = await fetch("/api/counselor/caseload");
@@ -104,11 +107,22 @@ export default function CounselorDashboardPage() {
 
 	return (
 		<div className="space-y-6">
-			<div>
-				<h1 className="text-2xl font-bold">Your Students</h1>
-				<p className="text-muted-foreground">
-					{students.length} student{students.length !== 1 ? "s" : ""} in your caseload
-				</p>
+			<div className="flex items-start justify-between gap-4 flex-wrap">
+				<div>
+					<h1 className="text-2xl font-bold">Your Students</h1>
+					<p className="text-muted-foreground">
+						{students.length} student{students.length !== 1 ? "s" : ""} in your caseload
+					</p>
+				</div>
+				{schoolCode && (
+					<div className="rounded-lg border bg-muted/40 px-4 py-3 text-sm">
+						<p className="text-xs text-muted-foreground mb-0.5">Your school code</p>
+						<p className="font-mono font-semibold tracking-wide">{schoolCode}</p>
+						<p className="text-xs text-muted-foreground mt-0.5">
+							Share with students so they can connect to you
+						</p>
+					</div>
+				)}
 			</div>
 			{cohortStats && <CohortStats stats={cohortStats} />}
 			<div className="flex items-center justify-between">
