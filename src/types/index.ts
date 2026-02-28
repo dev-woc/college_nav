@@ -3,10 +3,13 @@ import type {
 	agentRuns,
 	applicationTasks,
 	awardLetters,
+	careerSnapshots,
 	collegeListEntries,
 	colleges,
 	counselorProfiles,
 	counselorStudents,
+	employerRecruitingPrefs,
+	employers,
 	fafsaProgress,
 	scholarships,
 	studentProfiles,
@@ -28,6 +31,9 @@ export type StudentScholarship = InferSelectModel<typeof studentScholarships>;
 export type AwardLetter = InferSelectModel<typeof awardLetters>;
 export type ApplicationTask = InferSelectModel<typeof applicationTasks>;
 export type FafsaProgress = InferSelectModel<typeof fafsaProgress>;
+export type CareerSnapshot = InferSelectModel<typeof careerSnapshots>;
+export type Employer = InferSelectModel<typeof employers>;
+export type EmployerRecruitingPref = InferSelectModel<typeof employerRecruitingPrefs>;
 
 // --- Enum types (match pgEnum values) ---
 
@@ -184,4 +190,21 @@ export interface CollegeScore {
 	outcomeScore: number; // 0-100
 	compositeScore: number; // 0-100
 	tier: CollegeTier;
+}
+
+// --- Career & Employer types ---
+
+export interface EmployerMatch {
+	employer: Employer;
+	pref: EmployerRecruitingPref;
+	matchedTiers: string[];
+	matchedMajor: boolean;
+}
+
+export interface CareerPageData {
+	snapshot: CareerSnapshot | null;
+	pathway: import("@/lib/career/pathways").CareerPathway | null;
+	wageData: Record<string, import("@/lib/integrations/bls").BlsWageData>;
+	employers: EmployerMatch[];
+	major: string | null;
 }

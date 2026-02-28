@@ -128,7 +128,7 @@ export default function StudentDashboardPage() {
 
 	return (
 		<div className="mx-auto max-w-5xl p-6">
-			<div className="mb-6 grid gap-4 sm:grid-cols-3">
+			<div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 				<Link href="/student/financial-aid">
 					<div className="rounded-xl border p-4 hover:bg-muted/50 transition-colors cursor-pointer">
 						<h3 className="font-semibold">Financial Aid &amp; Scholarships</h3>
@@ -147,6 +147,14 @@ export default function StudentDashboardPage() {
 					<div className="rounded-xl border p-4 hover:bg-muted/50 transition-colors cursor-pointer">
 						<h3 className="font-semibold">FAFSA Guide</h3>
 						<p className="text-sm text-muted-foreground mt-1">Step-by-step walkthrough</p>
+					</div>
+				</Link>
+				<Link href="/student/career">
+					<div className="rounded-xl border p-4 hover:bg-muted/50 transition-colors cursor-pointer">
+						<h3 className="font-semibold">Career Paths</h3>
+						<p className="text-sm text-muted-foreground mt-1">
+							See where your major leads and who&apos;s hiring
+						</p>
 					</div>
 				</Link>
 			</div>

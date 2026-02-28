@@ -64,6 +64,8 @@ export const taskStatusEnum = pgEnum("task_status", [
 	"skipped",
 ]);
 
+export const roleTypeEnum = pgEnum("role_type", ["internship", "full_time", "both"]);
+
 // --- Tables ---
 
 // Universal profile for all users (students, counselors, admins)
@@ -369,6 +371,58 @@ export const fafsaProgress = pgTable(
 	(table) => [uniqueIndex("idx_fafsa_progress_student").on(table.studentProfileId)],
 );
 
+// Career snapshot cached per student (from Career Agent)
+export const careerSnapshots = pgTable(
+	"career_snapshots",
+	{
+		id: uuid("id").defaultRandom().primaryKey(),
+		studentProfileId: uuid("student_profile_id")
+			.notNull()
+			.unique()
+			.references(() => studentProfiles.id, { onDelete: "cascade" }),
+		major: text("major").notNull(),
+		pathwayJson: text("pathway_json").notNull().default("null"),
+		wageDataJson: text("wage_data_json").notNull().default("{}"),
+		lastRefreshedAt: timestamp("last_refreshed_at", { withTimezone: true }).defaultNow().notNull(),
+		createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+		updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+	},
+	(table) => [index("idx_career_snapshots_student").on(table.studentProfileId)],
+);
+
+// Employer profiles (registered companies)
+export const employers = pgTable("employers", {
+	id: uuid("id").defaultRandom().primaryKey(),
+	name: text("name").notNull(),
+	industry: text("industry").notNull().default(""),
+	description: text("description").notNull().default(""),
+	website: text("website").notNull().default(""),
+	logoUrl: text("logo_url").notNull().default(""),
+	isVerified: boolean("is_verified").notNull().default(false),
+	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+// Employer recruiting preferences (school tiers, majors, role types)
+export const employerRecruitingPrefs = pgTable(
+	"employer_recruiting_prefs",
+	{
+		id: uuid("id").defaultRandom().primaryKey(),
+		employerId: uuid("employer_id")
+			.notNull()
+			.references(() => employers.id, { onDelete: "cascade" }),
+		collegeTiers: text("college_tiers").notNull().default('["reach","match","likely"]'),
+		minGpa: text("min_gpa").notNull().default("0.0"),
+		majorKeywords: text("major_keywords").notNull().default("[]"),
+		roleType: roleTypeEnum("role_type").notNull().default("both"),
+		targetGradYear: integer("target_grad_year"),
+		isActive: boolean("is_active").notNull().default(true),
+		createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+		updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+	},
+	(table) => [index("idx_employer_prefs_employer").on(table.employerId)],
+);
+
 // --- Relations ---
 
 export const userProfilesRelations = relations(userProfiles, ({ one }) => ({
@@ -396,6 +450,10 @@ export const studentProfilesRelations = relations(studentProfiles, ({ one, many 
 	fafsaProgress: one(fafsaProgress, {
 		fields: [studentProfiles.id],
 		references: [fafsaProgress.studentProfileId],
+	}),
+	careerSnapshot: one(careerSnapshots, {
+		fields: [studentProfiles.id],
+		references: [careerSnapshots.studentProfileId],
 	}),
 }));
 
@@ -483,5 +541,23 @@ export const fafsaProgressRelations = relations(fafsaProgress, ({ one }) => ({
 	student: one(studentProfiles, {
 		fields: [fafsaProgress.studentProfileId],
 		references: [studentProfiles.id],
+	}),
+}));
+
+export const careerSnapshotsRelations = relations(careerSnapshots, ({ one }) => ({
+	studentProfile: one(studentProfiles, {
+		fields: [careerSnapshots.studentProfileId],
+		references: [studentProfiles.id],
+	}),
+}));
+
+export const employersRelations = relations(employers, ({ many }) => ({
+	recruitingPrefs: many(employerRecruitingPrefs),
+}));
+
+export const employerRecruitingPrefsRelations = relations(employerRecruitingPrefs, ({ one }) => ({
+	employer: one(employers, {
+		fields: [employerRecruitingPrefs.employerId],
+		references: [employers.id],
 	}),
 }));
