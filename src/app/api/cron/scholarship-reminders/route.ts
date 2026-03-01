@@ -4,7 +4,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { calcDaysUntilDeadline } from "@/lib/agents/scholarships/matching";
 import { db } from "@/lib/db";
-import { scholarships, studentProfiles, studentScholarships, userProfiles } from "@/lib/db/schema";
+import { studentProfiles, studentScholarships, userProfiles } from "@/lib/db/schema";
 import { sendScholarshipReminder } from "@/lib/email";
 
 export async function GET(request: Request) {

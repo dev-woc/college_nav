@@ -57,5 +57,5 @@ export async function GET() {
 			return b.matchScore - a.matchScore;
 		});
 
-	return NextResponse.json({ scholarships: scholarshipMatches });
+	return NextResponse.json({ matches: scholarshipMatches });
 }

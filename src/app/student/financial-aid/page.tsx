@@ -18,7 +18,7 @@ export default function FinancialAidPage() {
 		const res = await fetch("/api/financial-aid");
 		if (res.ok) {
 			const data: { summaries: FinancialAidSummary[] } = await res.json();
-			setSummaries(data.summaries);
+			setSummaries(data.summaries ?? []);
 		}
 	}, []);
 
@@ -26,7 +26,7 @@ export default function FinancialAidPage() {
 		const res = await fetch("/api/scholarships");
 		if (res.ok) {
 			const data: { matches: ScholarshipMatch[] } = await res.json();
-			setScholarships(data.matches);
+			setScholarships(data.matches ?? []);
 		}
 	}, []);
 
@@ -64,10 +64,11 @@ export default function FinancialAidPage() {
 
 			if (finRes.ok) {
 				const finData: { summaries: FinancialAidSummary[] } = await finRes.json();
-				setSummaries(finData.summaries);
+				const summariesData = finData.summaries ?? [];
+				setSummaries(summariesData);
 
 				// Auto-trigger financial aid agent if all net prices are null
-				const allNull = finData.summaries.every((s) => s.netPricePerYear === null);
+				const allNull = summariesData.every((s) => s.netPricePerYear === null);
 				if (allNull) {
 					fetch("/api/agents/financial-aid", { method: "POST" });
 				}
@@ -75,7 +76,7 @@ export default function FinancialAidPage() {
 
 			if (schRes.ok) {
 				const schData: { matches: ScholarshipMatch[] } = await schRes.json();
-				setScholarships(schData.matches);
+				setScholarships(schData.matches ?? []);
 
 				// Auto-trigger scholarship agent if no matches
 				if (schData.matches.length === 0) {
