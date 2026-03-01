@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { PostHogProvider } from "@/components/analytics/posthog-provider";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
@@ -28,7 +29,9 @@ export default function RootLayout({
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-				<AuthProvider>{children}</AuthProvider>
+				<PostHogProvider>
+					<AuthProvider>{children}</AuthProvider>
+				</PostHogProvider>
 				<Toaster />
 			</body>
 		</html>

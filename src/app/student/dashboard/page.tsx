@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { CollegeList } from "@/components/student/college-list";
+import { track } from "@/lib/analytics";
 import type { IncomeBracket, TieredCollegeList, UserWithProfile } from "@/types";
 
 export default function StudentDashboardPage() {
@@ -27,6 +28,7 @@ export default function StudentDashboardPage() {
 
 	const runAgent = useCallback(async () => {
 		setIsRunningAgent(true);
+		track("agent_run_triggered", { agentType: "discovery" });
 		try {
 			const res = await fetch("/api/agents/discovery", { method: "POST" });
 			if (!res.ok) {

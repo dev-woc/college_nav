@@ -4,7 +4,12 @@ import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { db } from "@/lib/db";
-import { studentProfiles, userProfiles } from "@/lib/db/schema";
+import {
+	counselorProfiles,
+	counselorStudents,
+	studentProfiles,
+	userProfiles,
+} from "@/lib/db/schema";
 import { apiRateLimiter } from "@/lib/rate-limit";
 import { onboardingSchema } from "@/lib/validations";
 
@@ -132,6 +137,23 @@ export async function POST(request: NextRequest) {
 		.update(userProfiles)
 		.set({ onboardingCompleted: true, updatedAt: new Date() })
 		.where(eq(userProfiles.id, userProfile.id));
+
+	// Auto-connect to counselor if an invite code was provided
+	const inviteCode = data.inviteCode;
+	if (inviteCode && studentProfile) {
+		const counselorProfile = await db.query.counselorProfiles.findFirst({
+			where: eq(counselorProfiles.schoolCode, inviteCode),
+		});
+		if (counselorProfile) {
+			await db
+				.insert(counselorStudents)
+				.values({
+					counselorProfileId: counselorProfile.id,
+					studentProfileId: studentProfile.id,
+				})
+				.onConflictDoNothing();
+		}
+	}
 
 	return NextResponse.json({ studentProfile }, { status: existing ? 200 : 201 });
 }

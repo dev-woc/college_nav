@@ -1,10 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { track } from "@/lib/analytics";
 import type { IncomeBracket, StudentOnboardingData } from "@/types";
 
 type Step = 0 | 1 | 2;
@@ -95,6 +96,8 @@ const STEP_SUBTITLES: Record<Step, string> = {
 
 export function OnboardingForm() {
 	const router = useRouter();
+	const searchParams = useSearchParams();
+	const codeParam = searchParams.get("code");
 	const [step, setStep] = useState<Step>(0);
 	const [loading, setLoading] = useState(false);
 	const [errors, setErrors] = useState<FormErrors>({});
@@ -160,6 +163,7 @@ export function OnboardingForm() {
 
 	const handleNext = () => {
 		if (validateStep(step)) {
+			track("student_onboarding_step_completed", { step });
 			setStep((prev) => (prev + 1) as Step);
 		}
 	};
@@ -171,7 +175,7 @@ export function OnboardingForm() {
 		setLoading(true);
 		setErrors({});
 
-		const data: StudentOnboardingData = {
+		const data: StudentOnboardingData & { inviteCode?: string } = {
 			gradeLevel: parseInt(gradeLevel),
 			gpa: parseFloat(gpa),
 			satScore: satScore ? parseInt(satScore) : null,
@@ -182,6 +186,7 @@ export function OnboardingForm() {
 			intendedMajor: intendedMajor.trim(),
 			collegeTypePreference,
 			locationPreference,
+			...(codeParam ? { inviteCode: codeParam } : {}),
 		};
 
 		try {
@@ -198,6 +203,7 @@ export function OnboardingForm() {
 				return;
 			}
 
+			track("student_onboarding_completed", { isFirstGen, incomeBracket, gradeLevel });
 			router.push("/student/dashboard");
 		} catch {
 			setErrors({ general: "Something went wrong. Please try again." });

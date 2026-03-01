@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { OnboardingForm } from "@/components/student/onboarding-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -14,7 +15,9 @@ export default function OnboardingPage() {
 						</CardDescription>
 					</CardHeader>
 					<CardContent>
-						<OnboardingForm />
+						<Suspense>
+							<OnboardingForm />
+						</Suspense>
 					</CardContent>
 				</Card>
 			</div>

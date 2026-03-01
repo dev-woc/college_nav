@@ -1,0 +1,27 @@
+"use client";
+
+import { useEffect } from "react";
+
+// Module-level flag prevents re-initialization in React StrictMode double-invoke
+let initialized = false;
+
+export function PostHogProvider({ children }: { children: React.ReactNode }) {
+	useEffect(() => {
+		const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+		if (!key || initialized) return;
+		initialized = true;
+
+		import("posthog-js")
+			.then(({ default: posthog }) => {
+				posthog.init(key, {
+					api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://us.i.posthog.com",
+					capture_pageview: false,
+					capture_pageleave: true,
+				});
+			})
+			.catch(() => {});
+	}, []);
+
+	// biome-ignore lint/complexity/noUselessFragments: provider wrapper pattern
+	return <>{children}</>;
+}

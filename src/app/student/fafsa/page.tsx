@@ -4,6 +4,7 @@ import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { FafsaGuide } from "@/components/student/fafsa-guide";
+import { track } from "@/lib/analytics";
 import type { UserWithProfile } from "@/types";
 
 interface FafsaStepData {
@@ -91,7 +92,10 @@ export default function FafsaPage() {
 					currentStep={fafsaData.currentStep}
 					completedCount={fafsaData.completedCount}
 					totalSteps={fafsaData.totalSteps}
-					onStepToggled={fetchFafsa}
+					onStepToggled={() => {
+						track("fafsa_step_toggled");
+						fetchFafsa();
+					}}
 				/>
 			)}
 		</div>

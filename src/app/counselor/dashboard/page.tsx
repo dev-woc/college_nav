@@ -64,6 +64,11 @@ export default function CounselorDashboardPage() {
 				return;
 			}
 
+			if (!userData.userProfile?.onboardingCompleted) {
+				router.push("/counselor/onboarding");
+				return;
+			}
+
 			setSchoolCode(userData.counselorProfile?.schoolCode ?? null);
 
 			// Fetch caseload

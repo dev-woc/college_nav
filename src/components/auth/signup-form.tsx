@@ -22,6 +22,7 @@ export function SignupForm() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const roleParam = searchParams.get("role");
+	const codeParam = searchParams.get("code");
 	const isCounselor = roleParam === "counselor";
 
 	const [name, setName] = useState("");
@@ -99,7 +100,11 @@ export function SignupForm() {
 			}
 
 			// 3. Redirect based on role
-			router.push(isCounselor ? "/counselor/dashboard" : "/student/onboarding");
+			router.push(
+				isCounselor
+					? "/counselor/dashboard"
+					: `/student/onboarding${codeParam ? `?code=${codeParam}` : ""}`,
+			);
 		} catch {
 			setErrors({ general: "Something went wrong. Please try again." });
 			setLoading(false);

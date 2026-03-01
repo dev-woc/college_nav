@@ -56,6 +56,17 @@ export const onboardingSchema = z.object({
 	intendedMajor: z.string().max(100).default(""),
 	collegeTypePreference: z.enum(["public", "private", "either"]).default("either"),
 	locationPreference: z.enum(["in_state", "anywhere", "regional"]).default("anywhere"),
+	inviteCode: z.string().optional(),
+});
+
+export const counselorOnboardingSchema = z.object({
+	schoolName: z.string().min(1, "School name is required").max(100),
+	district: z.string().max(100).default(""),
+	stateCode: z.string().length(2, "Must be a 2-letter state code"),
+});
+
+export const inviteStudentsSchema = z.object({
+	emails: z.array(z.string().email("Invalid email address")).min(1).max(100),
 });
 
 export const signupSchema = z.object({
