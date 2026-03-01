@@ -126,23 +126,23 @@ export function OnboardingForm() {
 		const newErrors: FormErrors = {};
 
 		if (s === 0) {
-			const grade = parseInt(gradeLevel);
+			const grade = parseInt(gradeLevel, 10);
 			if (!gradeLevel || grade < 9 || grade > 12) {
 				newErrors.gradeLevel = "Select your grade level (9–12)";
 			}
 			const gpaNum = parseFloat(gpa);
-			if (!gpa || isNaN(gpaNum) || gpaNum < 0 || gpaNum > 4.0) {
+			if (!gpa || Number.isNaN(gpaNum) || gpaNum < 0 || gpaNum > 4.0) {
 				newErrors.gpa = "Enter your GPA (0.0 – 4.0)";
 			}
 			if (satScore) {
-				const sat = parseInt(satScore);
-				if (isNaN(sat) || sat < 400 || sat > 1600) {
+				const sat = parseInt(satScore, 10);
+				if (Number.isNaN(sat) || sat < 400 || sat > 1600) {
 					newErrors.satScore = "SAT score must be between 400 and 1600";
 				}
 			}
 			if (actScore) {
-				const act = parseInt(actScore);
-				if (isNaN(act) || act < 1 || act > 36) {
+				const act = parseInt(actScore, 10);
+				if (Number.isNaN(act) || act < 1 || act > 36) {
 					newErrors.actScore = "ACT score must be between 1 and 36";
 				}
 			}
@@ -176,10 +176,10 @@ export function OnboardingForm() {
 		setErrors({});
 
 		const data: StudentOnboardingData & { inviteCode?: string } = {
-			gradeLevel: parseInt(gradeLevel),
+			gradeLevel: parseInt(gradeLevel, 10),
 			gpa: parseFloat(gpa),
-			satScore: satScore ? parseInt(satScore) : null,
-			actScore: actScore ? parseInt(actScore) : null,
+			satScore: satScore ? parseInt(satScore, 10) : null,
+			actScore: actScore ? parseInt(actScore, 10) : null,
 			stateOfResidence: stateOfResidence.toUpperCase(),
 			incomeBracket: incomeBracket as IncomeBracket,
 			isFirstGen,

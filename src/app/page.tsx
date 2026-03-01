@@ -187,13 +187,22 @@ export default function Home() {
 				<div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
 					<span className="text-xs text-[#f2f0eb]/20">College Navigator</span>
 					<div className="flex items-center gap-6">
-						<Link href="/login" className="text-xs text-[#f2f0eb]/30 hover:text-[#f2f0eb]/60 transition-colors">
+						<Link
+							href="/login"
+							className="text-xs text-[#f2f0eb]/30 hover:text-[#f2f0eb]/60 transition-colors"
+						>
 							Sign in
 						</Link>
-						<Link href="/signup" className="text-xs text-[#f2f0eb]/30 hover:text-[#f2f0eb]/60 transition-colors">
+						<Link
+							href="/signup"
+							className="text-xs text-[#f2f0eb]/30 hover:text-[#f2f0eb]/60 transition-colors"
+						>
 							Sign up
 						</Link>
-						<Link href="/signup?role=counselor" className="text-xs text-[#f2f0eb]/30 hover:text-[#f2f0eb]/60 transition-colors">
+						<Link
+							href="/signup?role=counselor"
+							className="text-xs text-[#f2f0eb]/30 hover:text-[#f2f0eb]/60 transition-colors"
+						>
 							For counselors
 						</Link>
 					</div>

@@ -125,40 +125,95 @@ export default function StudentDashboardPage() {
 		);
 	}
 
-	const incomeBracket =
-		(userWithProfile?.studentProfile?.incomeBracket as IncomeBracket | null) ?? null;
+	const sp = userWithProfile?.studentProfile;
+	const incomeBracket = (sp?.incomeBracket as IncomeBracket | null) ?? null;
+
+	const INCOME_LABELS: Record<IncomeBracket, string> = {
+		"0_30k": "Under $30k",
+		"30_48k": "$30k–$48k",
+		"48_75k": "$48k–$75k",
+		"75_110k": "$75k–$110k",
+		"110k_plus": "Over $110k",
+	};
+
+	const LOCATION_LABELS: Record<string, string> = {
+		in_state: "In-state only",
+		regional: "Regional",
+		anywhere: "Anywhere",
+	};
+
+	const profileChips = [
+		sp?.gpa != null && `GPA ${sp.gpa.toFixed(1)}`,
+		sp?.satScore != null && `SAT ${sp.satScore}`,
+		sp?.actScore != null && `ACT ${sp.actScore}`,
+		sp?.stateOfResidence && sp.stateOfResidence,
+		incomeBracket && INCOME_LABELS[incomeBracket],
+		sp?.intendedMajor && sp.intendedMajor,
+		sp?.collegeTypePreference &&
+			sp.collegeTypePreference !== "either" &&
+			`${sp.collegeTypePreference[0].toUpperCase()}${sp.collegeTypePreference.slice(1)} colleges`,
+		sp?.locationPreference && LOCATION_LABELS[sp.locationPreference],
+		sp?.isFirstGen && "First-gen",
+	].filter(Boolean) as string[];
+
+	const navItems = [
+		{
+			n: "01",
+			title: "Financial Aid",
+			desc: "Net costs & scholarships",
+			href: "/student/financial-aid",
+		},
+		{
+			n: "02",
+			title: "Applications",
+			desc: "Track deadlines & requirements",
+			href: "/student/applications",
+		},
+		{ n: "03", title: "FAFSA Guide", desc: "Step-by-step walkthrough", href: "/student/fafsa" },
+		{ n: "04", title: "Career Paths", desc: "Where your major leads", href: "/student/career" },
+	];
 
 	return (
-		<div className="mx-auto max-w-5xl p-6">
-			<div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-				<Link href="/student/financial-aid">
-					<div className="rounded-xl border p-4 hover:bg-muted/50 transition-colors cursor-pointer">
-						<h3 className="font-semibold">Financial Aid &amp; Scholarships</h3>
-						<p className="text-sm text-muted-foreground mt-1">
-							See net costs and find scholarships
+		<div className="mx-auto max-w-5xl">
+			{/* Profile / search parameters */}
+			<div className="mb-8 border border-black/[0.06] p-5">
+				<div className="flex items-start justify-between gap-4 flex-wrap">
+					<div>
+						<p className="text-xs font-medium tracking-[0.2em] uppercase text-muted-foreground mb-2">
+							Your search
 						</p>
+						<div className="flex flex-wrap gap-2">
+							{profileChips.map((chip) => (
+								<span
+									key={chip}
+									className="text-xs font-medium px-3 py-1 border border-black/[0.1] bg-black/[0.02]"
+								>
+									{chip}
+								</span>
+							))}
+						</div>
 					</div>
-				</Link>
-				<Link href="/student/applications">
-					<div className="rounded-xl border p-4 hover:bg-muted/50 transition-colors cursor-pointer">
-						<h3 className="font-semibold">My Applications</h3>
-						<p className="text-sm text-muted-foreground mt-1">Track deadlines and requirements</p>
-					</div>
-				</Link>
-				<Link href="/student/fafsa">
-					<div className="rounded-xl border p-4 hover:bg-muted/50 transition-colors cursor-pointer">
-						<h3 className="font-semibold">FAFSA Guide</h3>
-						<p className="text-sm text-muted-foreground mt-1">Step-by-step walkthrough</p>
-					</div>
-				</Link>
-				<Link href="/student/career">
-					<div className="rounded-xl border p-4 hover:bg-muted/50 transition-colors cursor-pointer">
-						<h3 className="font-semibold">Career Paths</h3>
-						<p className="text-sm text-muted-foreground mt-1">
-							See where your major leads and who&apos;s hiring
-						</p>
-					</div>
-				</Link>
+					<Link
+						href="/student/onboarding"
+						className="shrink-0 text-xs text-muted-foreground border border-black/[0.1] px-3 py-1.5 hover:border-black/20 hover:text-foreground transition-colors"
+					>
+						Edit profile →
+					</Link>
+				</div>
+			</div>
+
+			<div className="mb-8 grid grid-cols-2 gap-px bg-black/[0.06] md:grid-cols-4">
+				{navItems.map((item) => (
+					<Link key={item.n} href={item.href}>
+						<div className="bg-background p-6 hover:bg-black/[0.02] transition-colors group cursor-pointer min-h-[100px]">
+							<span className="text-xs font-mono text-muted-foreground/40 group-hover:text-foreground/60 transition-colors">
+								{item.n}
+							</span>
+							<h3 className="mt-3 text-sm font-semibold">{item.title}</h3>
+							<p className="mt-1 text-xs text-muted-foreground">{item.desc}</p>
+						</div>
+					</Link>
+				))}
 			</div>
 			<CollegeList list={collegeList} incomeBracket={incomeBracket} onRefresh={fetchCollegeList} />
 		</div>

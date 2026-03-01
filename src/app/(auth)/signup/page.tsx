@@ -3,34 +3,41 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { GoogleButton } from "@/components/auth/google-button";
 import { SignupForm } from "@/components/auth/signup-form";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
 export default function SignupPage() {
 	if (process.env.SKIP_AUTH === "true") redirect("/api/dev/setup");
 	return (
-		<Card>
-			<CardHeader className="text-center">
-				<CardTitle className="text-2xl">Create your account</CardTitle>
-				<CardDescription>Start building your personalized college list</CardDescription>
-			</CardHeader>
-			<CardContent className="space-y-4">
+		<div className="space-y-8">
+			<div>
+				<p className="text-xs font-medium tracking-[0.2em] uppercase text-muted-foreground mb-3">
+					Free for every student
+				</p>
+				<h1 className="text-3xl font-bold tracking-tight">Create your account</h1>
+				<p className="mt-2 text-sm text-muted-foreground">
+					Start building your personalized college list
+				</p>
+			</div>
+			<div className="space-y-4">
 				<GoogleButton />
 				<div className="flex items-center gap-4">
 					<Separator className="flex-1" />
-					<span className="text-sm text-muted-foreground">or</span>
+					<span className="text-xs text-muted-foreground uppercase tracking-widest">or</span>
 					<Separator className="flex-1" />
 				</div>
 				<Suspense>
 					<SignupForm />
 				</Suspense>
-				<p className="text-center text-sm text-muted-foreground">
+				<p className="text-sm text-muted-foreground">
 					Already have an account?{" "}
-					<Link href="/login" className="text-primary underline-offset-4 hover:underline">
+					<Link
+						href="/login"
+						className="text-foreground font-medium underline-offset-4 hover:underline"
+					>
 						Sign in
 					</Link>
 				</p>
-			</CardContent>
-		</Card>
+			</div>
+		</div>
 	);
 }

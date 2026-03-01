@@ -112,20 +112,23 @@ export default function CounselorDashboardPage() {
 
 	return (
 		<div className="space-y-6">
-			<div className="flex items-start justify-between gap-4 flex-wrap">
+			<div className="flex items-start justify-between gap-4 flex-wrap border-b border-black/[0.06] pb-6">
 				<div>
-					<h1 className="text-2xl font-bold">Your Students</h1>
-					<p className="text-muted-foreground">
+					<p className="text-xs font-medium tracking-[0.2em] uppercase text-muted-foreground mb-2">
+						Caseload
+					</p>
+					<h1 className="text-2xl font-bold tracking-tight">Your Students</h1>
+					<p className="text-sm text-muted-foreground mt-1">
 						{students.length} student{students.length !== 1 ? "s" : ""} in your caseload
 					</p>
 				</div>
 				{schoolCode && (
-					<div className="rounded-lg border bg-muted/40 px-4 py-3 text-sm">
-						<p className="text-xs text-muted-foreground mb-0.5">Your school code</p>
-						<p className="font-mono font-semibold tracking-wide">{schoolCode}</p>
-						<p className="text-xs text-muted-foreground mt-0.5">
-							Share with students so they can connect to you
+					<div className="border border-black/[0.08] px-4 py-3 text-sm">
+						<p className="text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground mb-1">
+							School code
 						</p>
+						<p className="font-mono font-bold tracking-widest text-lg">{schoolCode}</p>
+						<p className="text-xs text-muted-foreground mt-1">Share with students to connect</p>
 					</div>
 				)}
 			</div>
